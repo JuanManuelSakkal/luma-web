@@ -1,0 +1,167 @@
+/* Panel lateral (en el celular ocupa toda la pantalla). */
+.panel {
+  margin: 0 0 0 auto;
+  height: 100dvh;
+  max-height: none;
+  width: min(440px, 100vw);
+  max-width: 100vw;
+  padding: 0;
+  border: 0;
+  background: var(--blanco);
+  color: var(--texto);
+}
+
+.panel::backdrop {
+  background: rgb(42 26 26 / 0.5);
+}
+
+.contenido {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  padding: 1.2rem var(--margen) 2rem;
+}
+
+.cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--borde);
+  margin-bottom: 1rem;
+}
+
+.cabecera h2 {
+  margin: 0 0 0.6rem;
+}
+
+.cerrar {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: var(--bordo);
+  cursor: pointer;
+}
+
+.vacio {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+}
+
+.items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid var(--borde);
+}
+
+.item p {
+  margin: 0;
+}
+
+.nombre {
+  line-height: 1.3;
+}
+
+.nombre a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nombre a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.variante {
+  color: var(--texto-suave);
+}
+
+.subtotal {
+  color: var(--bordo);
+}
+
+.cantidad {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  flex: none;
+}
+
+.cantidad button {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: none;
+  font-size: 1.2rem;
+  color: var(--bordo);
+  cursor: pointer;
+}
+
+.cantidad span {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  margin: 1.2rem 0;
+}
+
+.total strong {
+  font-weight: 400;
+  color: var(--bordo);
+}
+
+.campos {
+  display: grid;
+  gap: 0.8rem;
+  margin-bottom: 1.2rem;
+}
+
+.campos label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.95rem;
+}
+
+.campos input {
+  min-height: 46px;
+  padding: 0.4em 0.8em;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+}
+
+.enviar {
+  width: 100%;
+}
+
+.aclaracion {
+  margin: 0.8rem 0 0;
+  font-size: 0.88rem;
+  color: var(--texto-suave);
+}
+
+.vaciar {
+  margin-top: 1.5rem;
+  align-self: center;
+  border: 0;
+  background: none;
+  color: var(--texto-suave);
+  text-decoration: underline;
+  cursor: pointer;
+}

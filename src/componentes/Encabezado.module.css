@@ -1,0 +1,79 @@
+.encabezado {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--bordo);
+  color: var(--amarillo);
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.15);
+}
+
+.fila {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 64px;
+}
+
+.marca {
+  color: var(--amarillo);
+  display: flex;
+}
+
+.logo {
+  height: 30px;
+  width: auto;
+}
+
+.nav {
+  display: flex;
+  gap: 1.25rem;
+  margin-left: auto;
+}
+
+.nav a {
+  color: var(--blanco);
+  text-decoration: none;
+  padding: 0.4em 0;
+  border-bottom: 2px solid transparent;
+}
+
+.nav a:hover,
+.nav a.activo {
+  color: var(--amarillo);
+  border-bottom-color: var(--amarillo);
+}
+
+.botonPedido {
+  white-space: nowrap;
+}
+
+.contador {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  padding: 0 0.35em;
+  border-radius: 999px;
+  background: var(--bordo);
+  color: var(--amarillo);
+  font-size: 0.85em;
+}
+
+@media (max-width: 560px) {
+  .logo {
+    height: 24px;
+  }
+  .nav {
+    gap: 0.9rem;
+    font-size: 0.95rem;
+  }
+  .botonPedido {
+    padding-inline: 0.8em;
+  }
+}
+
+@media (max-width: 400px) {
+  .nav a:first-child {
+    display: none;
+  }
+}

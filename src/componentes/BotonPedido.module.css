@@ -1,0 +1,21 @@
+.flotante {
+  position: fixed;
+  left: 50%;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: 15;
+  width: min(480px, calc(100vw - 32px));
+  box-shadow: 0 8px 24px rgb(88 20 21 / 0.35);
+  animation: aparecer 0.2s ease-out;
+}
+
+.flotante:active {
+  transform: translateX(-50%) scale(0.98);
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 12px);
+  }
+}

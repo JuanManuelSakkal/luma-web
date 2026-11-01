@@ -1,0 +1,10 @@
+// Configuración de Cloudflare Workers: publica la carpeta dist/ como sitio estático.
+{
+  "name": "mond-web",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist",
+    // Cualquier ruta que no sea un archivo (/catalogo, /admin…) devuelve index.html y React Router la resuelve.
+    "not_found_handling": "single-page-application"
+  }
+}

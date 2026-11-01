@@ -1,0 +1,208 @@
+/* Identidad de Mond: colores, fuentes y estilos base.
+   Regla: el amarillo nunca va como texto sobre blanco (no se lee); sobre blanco,
+   los acentos van dentro de algo bordó. */
+
+@font-face {
+  font-family: 'Alice';
+  src: url('../assets/fuentes/alice-regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Avatar (títulos) queda pendiente hasta confirmar su licencia para web.
+   Cuando esté, agregar su @font-face acá y cambiar --fuente-titulos. */
+
+:root {
+  --bordo: #581415;
+  --bordo-hover: #6e1d1e;
+  --bordo-oscuro: #3e0d0e;
+  --amarillo: #ffec65;
+  --amarillo-suave: #fff6b8;
+  --blanco: #ffffff;
+  --crema: #fbf7f2;
+  --texto: #2a1a1a;
+  --texto-suave: #6b5757;
+  --borde: #eadfd8;
+  --verde-ok: #2e6b4f;
+
+  --fuente-texto: 'Alice', Georgia, 'Times New Roman', serif;
+  --fuente-titulos: 'Alice', Georgia, 'Times New Roman', serif;
+
+  --radio: 14px;
+  --radio-chico: 8px;
+  --sombra: 0 6px 20px rgb(88 20 21 / 0.08);
+  --ancho: 1120px;
+  --margen: clamp(16px, 4vw, 32px);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--fuente-texto);
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--texto);
+  background: var(--blanco);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--fuente-titulos);
+  font-weight: 400;
+  line-height: 1.15;
+  margin: 0 0 0.5em;
+  color: var(--bordo);
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+}
+h2 {
+  font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+}
+h3 {
+  font-size: 1.2rem;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: var(--bordo);
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--amarillo);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--bordo);
+}
+
+.contenedor {
+  width: 100%;
+  max-width: var(--ancho);
+  margin: 0 auto;
+  padding-inline: var(--margen);
+}
+
+.solo-lectores {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Botones */
+.boton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: 48px;
+  padding: 0.6em 1.4em;
+  border-radius: 999px;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background-color 0.15s,
+    transform 0.15s;
+}
+.boton:active {
+  transform: scale(0.98);
+}
+.boton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Sobre blanco: bordó con texto amarillo */
+.boton-principal {
+  background: var(--bordo);
+  color: var(--amarillo);
+}
+.boton-principal:hover {
+  background: var(--bordo-hover);
+}
+
+/* Sobre bordó: amarillo con texto bordó */
+.boton-amarillo {
+  background: var(--amarillo);
+  color: var(--bordo);
+}
+.boton-amarillo:hover {
+  background: var(--amarillo-suave);
+}
+
+.boton-borde {
+  background: transparent;
+  border-color: currentColor;
+}
+
+.boton-chico {
+  min-height: 40px;
+  padding: 0.4em 1em;
+  font-size: 0.95rem;
+}
+
+.icono-wa {
+  width: 1.2em;
+  height: 1.2em;
+  flex: none;
+}
+
+.sitio {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.sitio > main {
+  flex: 1;
+}
+
+/* Aparición al scrollear (ver src/lib/revelar.ts). Sin la clase .revelar
+   el elemento se ve normal, así que si el JS no corre no se pierde nada. */
+@media (prefers-reduced-motion: no-preference) {
+  .revelar {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.6s ease-out var(--retraso, 0ms),
+      transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) var(--retraso, 0ms);
+  }
+  .revelar.revelado {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,159 @@
+.tarjeta {
+  display: flex;
+  flex-direction: column;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  overflow: hidden;
+  box-shadow: var(--sombra);
+}
+
+.imagen {
+  position: relative;
+  aspect-ratio: 1;
+  height: 267px;
+  background: var(--bordo);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+/* Zoom suave de la foto al pasar el mouse; el recuadro la recorta. */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .tarjeta:hover .imagen img {
+    transform: scale(1.2);
+  }
+}
+
+/* Sin foto: el ícono de la uña en amarillo sobre bordó. */
+.placeholder {
+  width: 38%;
+  color: var(--amarillo);
+  opacity: 0.9;
+}
+
+.etiqueta {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 0.15em 0.7em;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--blanco);
+  color: var(--bordo);
+}
+
+.sin-stock {
+  background: var(--texto);
+  color: var(--blanco);
+}
+
+.cuerpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 1rem;
+}
+
+.categoria {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.nombre {
+  font-size: 1.1rem;
+  margin: 0.2rem 0 0.3rem;
+  color: var(--texto);
+}
+
+.nombre a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.nombre a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.nota {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.precio {
+  margin: 0.4rem 0 0.8rem;
+  font-size: 1.35rem;
+  color: var(--bordo);
+}
+
+.selector {
+  display: grid;
+  gap: 0.25rem;
+  margin-bottom: 0.8rem;
+  font-size: 0.9rem;
+}
+
+.selector select {
+  min-height: 42px;
+  padding: 0.3em 0.6em;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--blanco);
+}
+
+.agregar {
+  margin-top: auto;
+  width: 100%;
+}
+
+.pocas {
+  background: var(--amarillo);
+  color: var(--bordo);
+}
+
+@media (max-width: 520px) {
+  .cuerpo {
+    padding: 0.75rem;
+  }
+  .nombre {
+    font-size: 1rem;
+  }
+  .precio {
+    font-size: 1.15rem;
+  }
+  .textoLargo {
+    display: none;
+  }
+}
+
+.etiquetaSelector {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+/* Abre el muestrario. Área táctil amplia aunque se vea como un link. */
+.verTonos {
+  padding: 0.5rem 0 0.5rem 0.5rem;
+  margin: -0.5rem 0;
+  border: none;
+  background: none;
+  color: var(--bordo);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}

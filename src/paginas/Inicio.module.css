@@ -1,0 +1,261 @@
+.portada {
+  background: var(--bordo);
+  color: var(--blanco);
+  padding-block: clamp(3rem, 10vw, 4rem);
+  overflow: hidden;
+}
+
+.portadaContenido {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+}
+
+.portadaTexto {
+  display: grid;
+  gap: 2rem;
+  justify-items: center;
+  text-align: center;
+}
+
+/* El fondo de la foto es bordo como la portada: la máscara funde los bordes
+   para que la chica quede flotando sobre el fondo sin que se vea el recorte. */
+.portadaFoto {
+  display: none;
+}
+
+.portadaFoto img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: 62% 60%;
+  /* La elipse llega hasta el borde inferior sin desvanecerse: el lineal de abajo
+     termina de fundirla. Las dos máscaras se intersectan. */
+  -webkit-mask-image:
+    radial-gradient(ellipse 50% 65% at 50% 65%, #000 55%, transparent 100%),
+    linear-gradient(to bottom, #000 95%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    radial-gradient(ellipse 50% 65% at 50% 65%, #000 55%, transparent 100%),
+    linear-gradient(to bottom, #000 95%, transparent);
+  mask-composite: intersect;
+}
+
+@media (min-width: 900px) {
+  .portadaContenido {
+    grid-template-columns: 1fr 1.1fr;
+  }
+
+  .portadaFoto {
+    display: block;
+  }
+
+  .portadaFoto img {
+    width: 120%;
+    max-width: none;
+    margin-block: -3rem;
+  }
+}
+
+.titulo {
+  margin: 0;
+  display: grid;
+  gap: 1.2rem;
+  justify-items: center;
+  color: var(--blanco);
+}
+
+.logoGrande {
+  width: min(520px, 85vw);
+  height: auto;
+  color: var(--amarillo);
+}
+
+.bajada {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  max-width: 32ch;
+}
+
+.acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.acciones :global(.boton-borde) {
+  color: var(--blanco);
+}
+
+.acciones :global(.boton-borde):hover {
+  color: var(--amarillo);
+}
+
+.seccion {
+  padding-block: clamp(2.5rem, 7vw, 4.5rem);
+}
+
+.encabezadoSeccion {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.2rem;
+}
+
+.encabezadoSeccion h2 {
+  margin: 0;
+}
+
+.pasos {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+.paso {
+  padding: 1.3rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+}
+
+.paso h3 {
+  margin: 0.8rem 0 0.3rem;
+}
+
+.paso p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.numero {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bordo);
+  color: var(--amarillo);
+  font-size: 1.2rem;
+}
+
+.fondoCrema {
+  background: var(--crema);
+}
+
+.zonasConFoto {
+  display: grid;
+  gap: 2rem 3rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .zonasConFoto {
+    grid-template-columns: 1.2fr 1fr;
+  }
+}
+
+.fotoEntrega {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+}
+
+.gruposZonas {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.zonas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.zonas li {
+  padding: 0.35em 0.9em;
+  border-radius: 999px;
+  background: var(--crema);
+  border: 1px solid var(--borde);
+}
+
+.dia {
+  color: var(--texto-suave);
+}
+
+.bandaBordo {
+  background: var(--bordo);
+  color: var(--blanco);
+}
+
+.bandaBordo h2 {
+  color: var(--amarillo);
+}
+
+.mayoristas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.mayoristas p {
+  margin: 0;
+  max-width: 48ch;
+}
+
+.preguntas {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 760px;
+}
+
+.preguntas details {
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 0.2rem 1rem;
+}
+
+.preguntas summary {
+  cursor: pointer;
+  padding: 0.7rem 0;
+  color: var(--bordo);
+  font-size: 1.05rem;
+}
+
+.preguntas details p {
+  color: var(--texto-suave);
+}
+
+/* Entrada de la portada al cargar: logo, bajada y botones suben escalonados. */
+@media (prefers-reduced-motion: no-preference) {
+  .logoGrande,
+  .bajada,
+  .acciones {
+    animation: subir 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .bajada {
+    animation-delay: 0.15s;
+  }
+  .acciones {
+    animation-delay: 0.3s;
+  }
+}
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+}

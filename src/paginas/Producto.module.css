@@ -1,0 +1,355 @@
+.pagina {
+  padding-block: 1rem 6rem; /* Lugar para el botón flotante "Ver pedido". */
+}
+
+.volver {
+  display: inline-block;
+  min-height: 40px;
+  padding: 0.4rem 0;
+  margin-bottom: 0.4rem;
+  border: 0;
+  background: none;
+  color: var(--bordo);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.volver:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* En el celular una columna; desde tablet, foto a la izquierda y datos a la derecha. */
+.ficha {
+  display: grid;
+  gap: 1.2rem;
+}
+
+@media (min-width: 800px) {
+  .ficha {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+
+  .columnaFoto {
+    position: sticky;
+    top: 84px;
+  }
+}
+
+.foto {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radio);
+  overflow: hidden;
+  background: var(--bordo);
+  cursor: zoom-in;
+}
+
+div.foto {
+  cursor: default;
+}
+
+/* En el celular la foto va de borde a borde. */
+@media (max-width: 799px) {
+  .columnaFoto {
+    margin-inline: calc(-1 * var(--margen));
+  }
+
+  .foto {
+    border-radius: 0;
+  }
+}
+
+.foto img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.placeholder {
+  width: 32%;
+  color: var(--amarillo);
+  opacity: 0.9;
+}
+
+.etiqueta {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 0.2em 0.8em;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  background: var(--blanco);
+  color: var(--bordo);
+}
+
+.sin-stock {
+  background: var(--texto);
+  color: var(--blanco);
+}
+
+.pocas {
+  background: var(--amarillo);
+  color: var(--bordo);
+}
+
+.datos {
+  min-width: 0;
+}
+
+.categoria {
+  margin: 0;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.categoria a {
+  color: var(--texto-suave);
+  text-decoration: none;
+}
+
+.categoria a:hover {
+  color: var(--bordo);
+}
+
+.nombre {
+  margin: 0.2rem 0 0.3rem;
+  font-size: clamp(1.7rem, 4.5vw, 2.4rem);
+}
+
+.nota {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.precio {
+  margin: 0.5rem 0 1rem;
+  font-size: 1.8rem;
+  color: var(--bordo);
+}
+
+.tonos {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.tonos legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.elegido {
+  color: var(--bordo);
+}
+
+.botonesTono {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tono {
+  min-width: 52px;
+  min-height: 44px;
+  padding: 0.3em 0.9em;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--blanco);
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.tono:hover:not(:disabled) {
+  border-color: var(--bordo);
+}
+
+.tono[aria-pressed='true'] {
+  border-color: var(--bordo);
+  background: var(--bordo);
+  color: var(--amarillo);
+}
+
+.tono:disabled {
+  color: var(--texto-suave);
+  text-decoration: line-through;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selector {
+  width: 100%;
+  min-height: 46px;
+  padding: 0.3em 0.7em;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--blanco);
+}
+
+/* Abre el muestrario en una ventana, así un muestrario largo no empuja el botón de agregar. */
+.verMuestrario {
+  display: block;
+  min-height: 44px;
+  margin: -0.4rem 0 0.8rem;
+  padding: 0.5rem 0;
+  border: 0;
+  background: none;
+  color: var(--bordo);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.comprar {
+  display: flex;
+  gap: 0.7rem;
+  align-items: stretch;
+}
+
+.cantidad {
+  display: flex;
+  align-items: center;
+  flex: none;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+}
+
+.cantidad button {
+  width: 44px;
+  height: 100%;
+  min-height: 48px;
+  border: 0;
+  background: none;
+  font-size: 1.3rem;
+  color: var(--bordo);
+  cursor: pointer;
+}
+
+.cantidad button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.cantidad span {
+  min-width: 2ch;
+  text-align: center;
+}
+
+.agregar {
+  flex: 1;
+}
+
+.avisoAgregado {
+  min-height: 1.6em;
+  margin: 0.5rem 0 0.8rem;
+  font-size: 0.95rem;
+  color: var(--verde-ok);
+}
+
+.enlace {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bordo);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.extras a,
+.extras button {
+  color: var(--bordo);
+}
+
+.descripcion {
+  max-width: 68ch;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--borde);
+}
+
+.descripcion ul {
+  margin: 0 0 1em;
+  padding-left: 1.2rem;
+}
+
+.descripcion li + li {
+  margin-top: 0.25rem;
+}
+
+.relacionados {
+  margin-top: 2.5rem;
+}
+
+.fotoGrande {
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background: rgb(20 10 10 / 0.92);
+  cursor: zoom-out;
+}
+
+.fotoGrande::backdrop {
+  background: rgb(20 10 10 / 0.92);
+}
+
+.fotoGrande img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cerrar {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top));
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--blanco);
+  color: var(--bordo);
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Mientras carga el catálogo. */
+.gris,
+.lineaGris {
+  background: var(--crema);
+}
+
+.gris {
+  cursor: default;
+}
+
+.lineaGris {
+  height: 1.4rem;
+  border-radius: var(--radio-chico);
+}
+
+.corta {
+  width: 45%;
+}

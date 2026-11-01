@@ -1,0 +1,61 @@
+.ventana {
+  width: min(720px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  border: none;
+  border-radius: var(--radio);
+  background: var(--blanco);
+  color: var(--texto);
+  box-shadow: var(--sombra);
+}
+
+.ventana::backdrop {
+  background: rgb(42 26 26 / 0.6);
+}
+
+.encabezado {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0.8rem 0.8rem 1.2rem;
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+}
+
+.encabezado h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.cerrar {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--crema);
+  color: var(--bordo);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.ventana img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.ayuda {
+  margin: 0;
+  padding: 0.8rem 1.2rem 1rem;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.ayuda a {
+  color: var(--bordo);
+}

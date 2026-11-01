@@ -1,0 +1,73 @@
+.pagina {
+  padding-block: 2rem 3rem;
+}
+
+.cabecera h1 {
+  margin-bottom: 0.2rem;
+}
+
+.aviso {
+  color: var(--texto-suave);
+}
+
+.filtros {
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  display: grid;
+  gap: 0.8rem;
+  padding: 0.8rem 0;
+  background: var(--blanco);
+}
+
+.buscador input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0.5em 1em;
+  border: 1px solid var(--borde);
+  border-radius: 999px;
+  background: var(--crema);
+}
+
+.categorias {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.2rem;
+  scrollbar-width: none;
+}
+
+.chip {
+  flex: none;
+  min-height: 40px;
+  padding: 0.3em 1.1em;
+  border-radius: 999px;
+  border: 1px solid var(--bordo);
+  background: var(--blanco);
+  color: var(--bordo);
+  cursor: pointer;
+}
+
+.chip[aria-pressed='true'] {
+  background: var(--bordo);
+  color: var(--amarillo);
+}
+
+.resultado {
+  margin: 0.4rem 0 1rem;
+  font-size: 0.9rem;
+  color: var(--texto-suave);
+}
+
+.grilla {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.2rem;
+}
+
+@media (max-width: 520px) {
+  .grilla {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.7rem;
+  }
+}
