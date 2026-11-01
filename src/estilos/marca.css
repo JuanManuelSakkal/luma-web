@@ -39,10 +39,13 @@
   --violeta-oscuro: #3a1e41;
   --aqua: #a2d5cf;
   --aqua-suave: #d9eeeb;
-  --aqua-fondo: #f0f8f7;
+  --aqua-medio: #c4e6e1;
+  --aqua-fondo: #e6f4f1;
   --blanco: #ffffff;
   --crema: #fbf8f6;
-  --lila: #f5f0f6;
+  --lila: #f1e8f2;
+  /* Fondo general: un crema con un toque de lila, para que la página no sea blanca. */
+  --fondo: #f8f2f6;
   --texto: #2b2030;
   --texto-suave: #6e6373;
   --borde: #e9e1ea;
@@ -76,7 +79,7 @@ body {
   font-size: 17px;
   line-height: 1.6;
   color: var(--texto);
-  background: var(--crema);
+  background: var(--fondo);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -176,6 +179,14 @@ textarea {
   height: 6px;
   border-radius: 50%;
   background: var(--violeta);
+}
+
+/* El adorno sobre fondo violeta: líneas y punto en aqua. */
+.adorno-claro {
+  color: rgb(162 213 207 / 0.6);
+}
+.adorno-claro > span {
+  background: var(--aqua);
 }
 
 /* Botones */

@@ -9,34 +9,38 @@ export function Encabezado() {
   const cantidad = cantidadTotal(pedido.items)
 
   return (
-    <header className={estilos.encabezado}>
-      <div className={`contenedor ${estilos.fila}`}>
-        <Link to="/" className={estilos.marca} aria-label="Luma, ir al inicio">
-          <LogoLuma className={estilos.logo} />
-        </Link>
-        <nav className={estilos.nav} aria-label="Principal">
-          <NavLink to="/" end className={({ isActive }) => (isActive ? estilos.activo : undefined)}>
-            Inicio
-          </NavLink>
-          <NavLink to="/catalogo" className={({ isActive }) => (isActive ? estilos.activo : undefined)}>
-            Catálogo
-          </NavLink>
-          <Link to="/#envios" className={estilos.secundario}>
-            Envíos
+    <>
+      {/* La franja de arriba se va al scrollear; el encabezado queda fijo. */}
+      <p className={estilos.franja}>Envíos por moto en CABA y por Correo Argentino a todo el país</p>
+      <header className={estilos.encabezado}>
+        <div className={`contenedor ${estilos.fila}`}>
+          <Link to="/" className={estilos.marca} aria-label="Luma, ir al inicio">
+            <LogoLuma className={estilos.logo} />
           </Link>
-        </nav>
-        <button
-          type="button"
-          className={`boton boton-principal boton-chico ${estilos.botonPedido}`}
-          onClick={() => setAbierto(true)}
-          aria-label={`Ver mi pedido, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
-        >
-          Mi pedido
-          <span className={estilos.contador} aria-hidden="true">
-            {cantidad}
-          </span>
-        </button>
-      </div>
-    </header>
+          <nav className={estilos.nav} aria-label="Principal">
+            <NavLink to="/" end className={({ isActive }) => (isActive ? estilos.activo : undefined)}>
+              Inicio
+            </NavLink>
+            <NavLink to="/catalogo" className={({ isActive }) => (isActive ? estilos.activo : undefined)}>
+              Catálogo
+            </NavLink>
+            <Link to="/#envios" className={estilos.secundario}>
+              Envíos
+            </Link>
+          </nav>
+          <button
+            type="button"
+            className={`boton boton-principal boton-chico ${estilos.botonPedido}`}
+            onClick={() => setAbierto(true)}
+            aria-label={`Ver mi pedido, ${cantidad} ${cantidad === 1 ? 'producto' : 'productos'}`}
+          >
+            Mi pedido
+            <span className={estilos.contador} aria-hidden="true">
+              {cantidad}
+            </span>
+          </button>
+        </div>
+      </header>
+    </>
   )
 }

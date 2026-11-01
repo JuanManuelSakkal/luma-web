@@ -1,12 +1,11 @@
-/* Portada: fondo claro con un brillo aqua y lila muy suave, y el logo grande en violeta. */
+/* Portada en Aqua Frost con el logo en violeta, como la versión del logo sobre aqua del PDF de marca. */
 .portada {
   position: relative;
   overflow: hidden;
   padding-block: clamp(3.5rem, 12vw, 7rem) clamp(3rem, 9vw, 5.5rem);
   background:
-    radial-gradient(60% 70% at 15% 20%, rgb(162 213 207 / 0.35), transparent 70%),
-    radial-gradient(55% 65% at 90% 85%, rgb(84 44 93 / 0.1), transparent 70%), var(--crema);
-  border-bottom: 1px solid var(--borde);
+    radial-gradient(55% 70% at 18% 15%, rgb(255 255 255 / 0.35), transparent 70%),
+    radial-gradient(60% 70% at 88% 90%, rgb(84 44 93 / 0.16), transparent 70%), var(--aqua);
 }
 
 .portadaContenido {
@@ -32,7 +31,7 @@
 .bajada {
   font-size: clamp(1.1rem, 2.4vw, 1.35rem);
   font-style: italic;
-  color: var(--texto-suave);
+  color: var(--violeta-oscuro);
   max-width: 34ch;
   line-height: 1.5;
 }
@@ -58,7 +57,7 @@
   font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--texto-suave);
+  color: var(--violeta);
 }
 
 .seccion {
@@ -114,11 +113,11 @@
   gap: 0.4rem;
   padding: 2.2rem 1.2rem 1.8rem;
   height: 100%;
-  background: var(--blanco);
-  border: 1px solid var(--borde);
+  background: var(--violeta);
+  border: 1px solid var(--violeta);
   text-align: center;
   text-decoration: none;
-  color: var(--texto);
+  color: var(--blanco);
   transition:
     border-color 0.3s,
     box-shadow 0.3s,
@@ -130,19 +129,19 @@
   content: '';
   position: absolute;
   inset: 8px;
-  border: 1px solid transparent;
+  border: 1px solid rgb(162 213 207 / 0.3);
   transition: border-color 0.3s;
   pointer-events: none;
 }
 
 .categoria:hover {
-  border-color: var(--aqua);
-  box-shadow: var(--sombra);
+  background: var(--violeta-hover);
+  box-shadow: 0 14px 30px rgb(84 44 93 / 0.25);
   transform: translateY(-3px);
 }
 
 .categoria:hover::after {
-  border-color: var(--aqua-suave);
+  border-color: var(--aqua);
 }
 
 .iconoCategoria {
@@ -154,17 +153,17 @@
 }
 
 .categoria:hover .iconoCategoria {
-  color: var(--violeta);
+  color: var(--blanco);
 }
 
 .nombreCategoria {
   font-size: 1.7rem;
-  color: var(--violeta);
+  color: var(--blanco);
 }
 
 .detalleCategoria {
   font-size: 0.85rem;
-  color: var(--texto-suave);
+  color: var(--aqua);
 }
 
 .fondoLila {
@@ -184,7 +183,7 @@
 
 .nosotras p {
   font-size: 1.12rem;
-  color: var(--texto-suave);
+  color: var(--texto);
 }
 
 .iconoNosotras {
@@ -213,25 +212,26 @@
 
 .paso {
   padding: 1.8rem 1.4rem;
-  background: var(--blanco);
-  border: 1px solid var(--aqua-suave);
+  background: rgb(255 255 255 / 0.06);
+  border: 1px solid rgb(162 213 207 / 0.35);
 }
 
 .paso h3 {
   margin: 0.6rem 0 0.4rem;
   font-size: 1.35rem;
+  color: var(--blanco);
 }
 
 .paso p {
   margin: 0;
-  color: var(--texto-suave);
+  color: rgb(255 255 255 / 0.8);
 }
 
 .numero {
   display: block;
   font-size: 0.85rem;
   letter-spacing: 0.2em;
-  color: var(--texto-suave);
+  color: var(--aqua);
 }
 
 .numero::after {
@@ -253,8 +253,9 @@
 .envio {
   padding: 1.8rem 1.4rem;
   text-align: center;
-  border-top: 2px solid var(--aqua);
+  border-top: 3px solid var(--violeta);
   background: var(--blanco);
+  box-shadow: var(--sombra);
 }
 
 .envio h3 {
@@ -292,6 +293,17 @@
 
 .rotuloClaro {
   color: var(--aqua);
+}
+
+/* Banda de Instagram: aqua con texto violeta. */
+.bandaAqua {
+  background: var(--aqua);
+  color: var(--violeta-oscuro);
+}
+
+.bandaAqua .rotulo,
+.bandaAqua p {
+  color: var(--violeta-oscuro);
 }
 
 .instagram {

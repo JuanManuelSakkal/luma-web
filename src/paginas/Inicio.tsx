@@ -116,7 +116,7 @@ export function Inicio() {
       </section>
 
       {destacados.length > 0 && (
-        <section className={estilos.fondoLila} aria-labelledby="destacados">
+        <section className={estilos.fondoAqua} aria-labelledby="destacados">
           <div className={`contenedor ${estilos.seccion}`}>
             <div ref={revelar} className={estilos.encabezadoSeccion}>
               <div>
@@ -136,8 +136,8 @@ export function Inicio() {
         </section>
       )}
 
-      <section id="nosotras" className={`contenedor ${estilos.seccion}`} aria-labelledby="titulo-nosotras">
-        <div ref={revelar} className={estilos.nosotras}>
+      <section id="nosotras" className={estilos.fondoLila} aria-labelledby="titulo-nosotras">
+        <div ref={revelar} className={`contenedor ${estilos.seccion} ${estilos.nosotras}`}>
           <IconoLuma className={estilos.iconoNosotras} titulo="" />
           <span className="rotulo">Nuestra historia</span>
           <h2 id="titulo-nosotras">Hola, somos Agus y Mary</h2>
@@ -154,12 +154,12 @@ export function Inicio() {
         </div>
       </section>
 
-      <section className={estilos.fondoAqua} aria-labelledby="como-comprar">
+      <section className={estilos.bandaVioleta} aria-labelledby="como-comprar">
         <div className={`contenedor ${estilos.seccion}`}>
           <div ref={revelar} className={estilos.encabezadoCentrado}>
-            <span className="rotulo">Paso a paso</span>
+            <span className={`rotulo ${estilos.rotuloClaro}`}>Paso a paso</span>
             <h2 id="como-comprar">Cómo comprar</h2>
-            <span className="adorno" aria-hidden="true">
+            <span className="adorno adorno-claro" aria-hidden="true">
               <span />
             </span>
           </div>
@@ -213,14 +213,14 @@ export function Inicio() {
         </p>
       </section>
 
-      <section className={estilos.bandaVioleta} aria-labelledby="instagram">
+      <section className={estilos.bandaAqua} aria-labelledby="instagram">
         <div ref={revelar} className={`contenedor ${estilos.seccion} ${estilos.instagram}`}>
           <div>
-            <span className={`rotulo ${estilos.rotuloClaro}`}>Seguinos</span>
+            <span className="rotulo">Seguinos</span>
             <h2 id="instagram">Novedades en Instagram</h2>
             <p>Lo nuevo, las combinaciones que más nos gustan y todo lo que va llegando.</p>
           </div>
-          <a href={enlaces.instagram} className="boton boton-aqua" target="_blank" rel="noreferrer">
+          <a href={enlaces.instagram} className="boton boton-principal" target="_blank" rel="noreferrer">
             @{contacto.instagram}
           </a>
         </div>

@@ -1,5 +1,5 @@
 .pagina {
-  padding-block: 2rem 3rem;
+  padding-block: 0 3rem;
 }
 
 .cabecera h1 {
@@ -17,7 +17,7 @@
   display: grid;
   gap: 0.8rem;
   padding: 0.8rem 0;
-  background: var(--crema);
+  background: var(--fondo);
 }
 
 .buscador input {
@@ -94,7 +94,12 @@
 
 .cabecera {
   text-align: center;
-  padding-block: 1rem 0.6rem;
+  padding-block: 2.4rem 1.8rem;
+  margin-bottom: 0.6rem;
+  /* Banda aqua de lado a lado, aunque la cabecera esté dentro del contenedor. */
+  background: var(--aqua-fondo);
+  box-shadow: 0 0 0 100vmax var(--aqua-fondo);
+  clip-path: inset(0 -100vmax);
 }
 
 .resultado {

@@ -2,10 +2,21 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: rgb(251 248 246 / 0.92);
+  background: rgb(248 242 246 / 0.94);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--borde);
+}
+
+.franja {
+  margin: 0;
+  padding: 0.5rem var(--margen);
+  background: var(--violeta);
+  color: var(--aqua);
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 .fila {
