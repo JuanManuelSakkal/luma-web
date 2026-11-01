@@ -9,7 +9,7 @@ import {
 } from 'react'
 import { leerPedidoGuardado, reducirPedido, type Accion, type Pedido } from './pedido'
 
-const CLAVE = 'mond.pedido.v1'
+const CLAVE = 'luma.pedido.v1'
 
 type Valor = {
   pedido: Pedido

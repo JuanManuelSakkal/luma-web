@@ -4,7 +4,7 @@ import type { Producto } from '../catalogo/tipos'
 import { pesos } from '../pedido/pedido'
 import { revelar } from '../lib/revelar'
 import { rutaProducto, textoDisponibilidad, useAgregar } from '../pedido/useAgregar'
-import { IconoMond } from './IconoMond'
+import { IconoLuma } from './IconoLuma'
 import { Muestrario } from './Muestrario'
 import estilos from './TarjetaProducto.module.css'
 
@@ -22,7 +22,7 @@ export function TarjetaProducto({ producto }: { producto: Producto }) {
         {producto.imagenUrl ? (
           <img src={producto.imagenUrl} alt="" loading="lazy" width={400} height={400} />
         ) : (
-          <IconoMond className={estilos.placeholder} titulo="" />
+          <IconoLuma className={estilos.placeholder} titulo="" />
         )}
         {disponibilidad !== 'disponible' && (
           <span className={`${estilos.etiqueta} ${estilos[disponibilidad]}`}>
@@ -31,7 +31,7 @@ export function TarjetaProducto({ producto }: { producto: Producto }) {
         )}
       </Link>
       <div className={estilos.cuerpo}>
-        <p className={estilos.categoria}>{producto.categoria}</p>
+        <p className={estilos.categoria}>{producto.subcategoria ?? producto.categoria}</p>
         <h3 className={estilos.nombre}>
           <Link to={ruta}>{producto.nombre}</Link>
         </h3>
@@ -65,15 +65,7 @@ export function TarjetaProducto({ producto }: { producto: Producto }) {
           onClick={() => agregar()}
           disabled={sinStock}
         >
-          {sinStock ? (
-            'Sin stock'
-          ) : agregado ? (
-            'Agregado ✓'
-          ) : (
-            <>
-              Agregar<span className={estilos.textoLargo}> al pedido</span>
-            </>
-          )}
+          {sinStock ? 'Sin stock' : agregado ? 'Agregado ✓' : 'Agregar'}
         </button>
         {producto.muestrarioUrl && (
           <Muestrario

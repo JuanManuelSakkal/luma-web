@@ -12,7 +12,7 @@ export function BotonWhatsApp() {
 
   return (
     <a
-      href={enlaces.whatsapp('¡Hola Mond! Quería hacer una consulta.')}
+      href={enlaces.whatsapp('¡Hola Luma! Quería hacer una consulta.')}
       target="_blank"
       rel="noreferrer"
       className={`${estilos.flotante} ${hayPedido ? estilos.conPedido : ''}`}

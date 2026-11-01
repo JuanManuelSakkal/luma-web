@@ -23,7 +23,7 @@ const periodos = [
   { nombre: 'Todo', dias: null },
 ] as const
 
-/** Ventas anotadas en Montecarlo: totales, lo que más se vende y el detalle por día. */
+/** Ventas anotadas: totales, lo que más se vende y el detalle por día. */
 export function Ventas({ sb }: { sb: SupabaseClient }) {
   // Se traen todas y se filtra acá: son pocas y así cambiar de período es instantáneo.
   const [carga, recargar] = useCarga(() => listarVentas(sb))
@@ -42,7 +42,7 @@ export function Ventas({ sb }: { sb: SupabaseClient }) {
     const url = URL.createObjectURL(new Blob([ventasACsv(ventas)], { type: 'text/csv;charset=utf-8' }))
     const a = document.createElement('a')
     a.href = url
-    a.download = `ventas-mond-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `ventas-luma-${new Date().toISOString().slice(0, 10)}.csv`
     a.click()
     URL.revokeObjectURL(url)
   }

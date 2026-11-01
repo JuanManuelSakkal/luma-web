@@ -1,4 +1,4 @@
-/* El verde es el de WhatsApp: se reconoce al instante y no compite con el bordó de la marca. */
+/* El verde es el de WhatsApp: se reconoce al instante y no compite con el violeta de la marca. */
 .flotante {
   --abajo: max(16px, env(safe-area-inset-bottom));
   position: fixed;
@@ -36,7 +36,7 @@
 }
 
 .flotante:focus-visible {
-  outline: 3px solid var(--bordo);
+  outline: 3px solid var(--violeta);
   outline-offset: 3px;
 }
 

@@ -1,13 +1,13 @@
 import type { Session, SupabaseClient } from '@supabase/supabase-js'
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, NavLink, Route, Routes } from 'react-router'
-import { LogoMond } from '../componentes/LogoMond'
+import { LogoLuma } from '../componentes/LogoLuma'
 import { supabase } from '../lib/supabase'
 import { EditarProducto } from './EditarProducto'
 import { Importar } from './Importar'
 import { ListaProductos } from './ListaProductos'
 import { RegistrarVenta } from './RegistrarVenta'
-import { Ventas } from "./Ventas.tsx"
+import { Ventas } from './Ventas.tsx'
 import { miRol } from './ventas'
 import estilos from './admin.module.css'
 
@@ -19,7 +19,7 @@ type EstadoSesion =
 
 export default function AdminApp() {
   useEffect(() => {
-    document.title = 'Admin · Mond'
+    document.title = 'Admin · Luma'
     const meta = document.createElement('meta')
     meta.name = 'robots'
     meta.content = 'noindex'
@@ -77,9 +77,7 @@ function ConSupabase({ sb }: { sb: SupabaseClient }) {
       <Marco>
         <div className={estilos.caja}>
           <h1>Sin permiso</h1>
-          <p>
-            {sesion.email} no tiene permiso para acceder a esta sección.
-          </p>
+          <p>{sesion.email} no tiene permiso para acceder a esta sección.</p>
           <button type="button" className="boton boton-principal" onClick={salir}>
             Salir
           </button>
@@ -130,8 +128,8 @@ function Marco({
     <div className={estilos.admin}>
       <header className={estilos.barra}>
         <div className={`contenedor ${estilos.barraFila}`}>
-          <Link to="/admin" className={estilos.marca} aria-label="Admin de Mond">
-            <LogoMond className={estilos.logo} />
+          <Link to="/admin" className={estilos.marca} aria-label="Admin de Luma">
+            <LogoLuma className={estilos.logo} />
             <span>admin</span>
           </Link>
           {salir && (

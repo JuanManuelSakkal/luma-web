@@ -9,7 +9,7 @@ export type Venta = {
   fecha: string
   variante_id: number | null
   producto: string
-  /** null si el producto no tiene tonos. */
+  /** null si el producto no tiene variantes. */
   variante: string | null
   cantidad: number
   precio_unitario: number
@@ -89,7 +89,7 @@ export function resumir(ventas: Venta[]): Resumen {
 
 export type FilaProducto = { producto: string; unidades: number; total: number }
 
-/** Unidades y plata por producto (sumando sus tonos), de lo que más se vende a lo que menos. */
+/** Unidades y plata por producto (sumando sus variantes), de lo que más se vende a lo que menos. */
 export function porProducto(ventas: Venta[]): FilaProducto[] {
   const filas = new Map<string, FilaProducto>()
   for (const v of ventas) {

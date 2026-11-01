@@ -41,7 +41,7 @@
 
   .flecha {
     position: absolute;
-    top: 135px;
+    top: 125px;
     z-index: 2;
     display: grid;
     place-items: center;
@@ -51,7 +51,7 @@
     border: 1px solid var(--borde);
     border-radius: 50%;
     background: var(--blanco);
-    color: var(--bordo);
+    color: var(--violeta);
     font-size: 2rem;
     line-height: 1;
     box-shadow: var(--sombra);
@@ -69,8 +69,8 @@
   }
 
   .flecha:hover:not(:disabled) {
-    background: var(--bordo);
-    color: var(--amarillo);
+    background: var(--violeta);
+    color: var(--blanco);
   }
 
   .flecha:disabled {

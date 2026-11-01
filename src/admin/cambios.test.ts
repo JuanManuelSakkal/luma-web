@@ -8,6 +8,7 @@ const categorias: Categoria[] = [{ id: 1, nombre: 'Esmaltes', orden: 1 }]
 const base = (p: Partial<ProductoAdmin> & Pick<ProductoAdmin, 'slug' | 'nombre'>): ProductoAdmin => ({
   id: 1,
   categoria_id: 1,
+  subcategoria: null,
   descripcion: null,
   nota: null,
   tipo_variante: null,
@@ -25,7 +26,7 @@ const kapping = base({
   slug: 'kapping-cas',
   nombre: 'Kapping CAS',
   precio: 3850,
-  tipo_variante: 'Tono',
+  tipo_variante: 'Color',
   destacado: true,
   imagen_url: 'https://x/foto.webp',
   variantes: [
@@ -38,7 +39,7 @@ const topMatte = base({ id: 20, slug: 'top-matte', nombre: 'Top Matte', precio: 
 describe('planificarImportacion con la lista de precios (sin stock)', () => {
   const csv = [
     'Categoría,Producto,Precio de lanzamiento',
-    'Esmaltes,"Kapping CAS (tonos #1, #3)",$4.000',
+    'Esmaltes,"Kapping CAS (colores #1, #3)",$4.000',
     'Tips,Tips x500,$10.950',
   ].join('\n')
   const plan = planificarImportacion(leerCsv(csv), [kapping, topMatte], categorias)
@@ -49,7 +50,7 @@ describe('planificarImportacion con la lista de precios (sin stock)', () => {
     expect(plan.categoriasNuevas).toEqual(['Tips'])
     expect(plan.modificados[0].cambios).toEqual([
       'Precio: $ 3.850 → $ 4.000',
-      'Tono nuevo: #3',
+      'Variante nueva: #3',
       'Se oculta #2',
     ])
   })
@@ -80,13 +81,13 @@ describe('exportar y volver a importar', () => {
   })
 
   it('un cambio de stock en el CSV aparece en la revisión', () => {
-    const csv = exportarCsv([kapping], categorias).replace('#2,Tono,3850,2', '#2,Tono,3850,0')
+    const csv = exportarCsv([kapping], categorias).replace('#2,Color,3850,2', '#2,Color,3850,0')
     const plan = planificarImportacion(leerCsv(csv), [kapping], categorias)
     expect(plan.modificados[0].cambios).toEqual(['Stock #2: 2 → 0'])
   })
 
   it('una fila con activo "no" oculta ese tono', () => {
-    const csv = exportarCsv([kapping], categorias).replace('#1,Tono,3850,5,si', '#1,Tono,3850,5,no')
+    const csv = exportarCsv([kapping], categorias).replace('#1,Color,3850,5,si', '#1,Color,3850,5,no')
     const plan = planificarImportacion(leerCsv(csv), [kapping], categorias)
     expect(plan.modificados[0].cambios).toEqual(['Se oculta #1'])
   })
@@ -122,7 +123,7 @@ describe('exportar y volver a importar', () => {
       id: 30,
       slug: 'polvo-espejo',
       nombre: 'Polvo Espejo',
-      tipo_variante: 'Tono',
+      tipo_variante: 'Color',
       variantes: [
         { id: 31, nombre: 'Único', stock: null, activo: false, orden: 0 },
         { id: 32, nombre: '#12', stock: null, activo: true, orden: 1 },
@@ -134,9 +135,9 @@ describe('exportar y volver a importar', () => {
     // Un CSV bajado antes de este arreglo trae la fila sin tono, en cualquier posición.
     const viejo = [
       'categoria,producto,variante,tipo,precio,stock,activo,destacado,nota,descripcion',
-      'Esmaltes,Polvo Espejo,#12,Tono,1000,,si,,,',
+      'Esmaltes,Polvo Espejo,#12,Color,1000,,si,,,',
       'Esmaltes,Polvo Espejo,,,1000,,no,,,',
-      'Esmaltes,Polvo Espejo,#13,Tono,1000,,si,,,',
+      'Esmaltes,Polvo Espejo,#13,Color,1000,,si,,,',
     ].join('\n')
     const alReves = viejo.split('\n')
     ;[alReves[1], alReves[2]] = [alReves[2], alReves[1]]

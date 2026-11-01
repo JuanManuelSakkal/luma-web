@@ -80,7 +80,7 @@ export function Importar({ sb }: { sb: SupabaseClient }) {
       )
       const a = document.createElement('a')
       a.href = url
-      a.download = `catalogo-mond-${new Date().toISOString().slice(0, 10)}.csv`
+      a.download = `catalogo-luma-${new Date().toISOString().slice(0, 10)}.csv`
       a.click()
       URL.revokeObjectURL(url)
     } catch (e) {
@@ -110,7 +110,7 @@ export function Importar({ sb }: { sb: SupabaseClient }) {
       <section className={estilos.bloque}>
         <h2>Subir un CSV</h2>
         <p className={estilos.suave}>
-          Sirve el CSV que bajás de acá (una fila por tono, con stock) o la lista de precios de lanzamiento
+          Sirve el CSV que bajás de acá (una fila por variante, con stock) o una lista de precios simple
           (Categoría, Producto, Precio). Antes de guardar vas a ver qué cambia. Una descripción vacía en el
           CSV no borra la que ya estaba cargada.
         </p>

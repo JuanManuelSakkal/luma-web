@@ -1,13 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
-import { enlaces, zonasQuincenales, zonasSemanales } from '../config'
+import { enlaces, formasDeEnvio, transferencia } from '../config'
 import { armarMensaje, claveItem, pesos, totalPedido } from '../pedido/pedido'
 import { usePedido } from '../pedido/PedidoContext'
 import { rutaProducto } from '../pedido/useAgregar'
 import { IconoWhatsApp } from './IconoWhatsApp'
 import estilos from './PanelPedido.module.css'
-
-const pueblos = [...zonasSemanales, ...zonasQuincenales].map((z) => z.pueblo)
 
 export function PanelPedido() {
   const { pedido, despachar, abierto, setAbierto } = usePedido()
@@ -97,13 +95,15 @@ export function PanelPedido() {
             </ul>
 
             <p className={estilos.total}>
-              <span>Total</span>
+              <span>
+                Total <span className={estilos.sinEnvio}>(sin envío)</span>
+              </span>
               <strong>{pesos(total)}</strong>
             </p>
 
             <div className={estilos.campos}>
               <label>
-                Tu nombre o el de tu salón
+                Tu nombre
                 <input
                   type="text"
                   autoComplete="name"
@@ -112,19 +112,33 @@ export function PanelPedido() {
                 />
               </label>
               <label>
-                Localidad
+                Barrio o localidad
                 <input
                   type="text"
-                  list="pueblos-mond"
-                  value={pedido.cliente.pueblo}
-                  onChange={(e) => despachar({ tipo: 'cliente', cliente: { pueblo: e.target.value } })}
+                  autoComplete="address-level2"
+                  placeholder="Ej: Palermo, Caballito, La Plata"
+                  value={pedido.cliente.zona}
+                  onChange={(e) => despachar({ tipo: 'cliente', cliente: { zona: e.target.value } })}
                 />
-                <datalist id="pueblos-mond">
-                  {pueblos.map((p) => (
-                    <option key={p} value={p} />
-                  ))}
-                </datalist>
               </label>
+              <fieldset className={estilos.envios}>
+                <legend>Envío</legend>
+                {formasDeEnvio.map((f) => (
+                  <label key={f.id} className={estilos.opcion}>
+                    <input
+                      type="radio"
+                      name="envio"
+                      value={f.id}
+                      checked={pedido.cliente.envio === f.id}
+                      onChange={() => despachar({ tipo: 'cliente', cliente: { envio: f.id } })}
+                    />
+                    <span>
+                      {f.nombre}
+                      <span className={estilos.detalleOpcion}>{f.detalle}</span>
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
             </div>
 
             <a
@@ -136,7 +150,9 @@ export function PanelPedido() {
               <IconoWhatsApp /> Enviar pedido por WhatsApp
             </a>
             <p className={estilos.aclaracion}>
-              Se abre WhatsApp con el pedido escrito. Te confirmamos stock, día de entrega y forma de pago.
+              Se abre WhatsApp con el pedido escrito. Te confirmamos disponibilidad y el costo del envío, que
+              corre por tu cuenta o lo coordinamos. Pagás por transferencia al alias{' '}
+              <strong>{transferencia.alias}</strong> ({transferencia.titular}).
             </p>
             <button type="button" className={estilos.vaciar} onClick={() => despachar({ tipo: 'vaciar' })}>
               Vaciar pedido

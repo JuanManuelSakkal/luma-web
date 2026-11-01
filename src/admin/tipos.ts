@@ -16,19 +16,22 @@ export type ProductoAdmin = {
   slug: string
   nombre: string
   categoria_id: number | null
+  subcategoria: string | null
   descripcion: string | null
   nota: string | null
-  tipo_variante: 'Tono' | 'Aroma' | null
+  tipo_variante: TipoVariante | null
   precio: number
   destacado: boolean
   activo: boolean
   imagen_url: string | null
-  /** Foto con todos los tonos y sus números. */
+  /** Foto con todas las variantes juntas. */
   muestrario_url: string | null
   variantes: VarianteAdmin[]
 }
 
-/** Nombre de la variante que usan los productos sin tonos ni aromas. */
+export type TipoVariante = 'Color' | 'Medida' | 'Modelo'
+
+/** Nombre de la variante que usan los productos sin colores, medidas ni modelos. */
 export const UNICA = 'Único'
 
 export function tieneVariantes(p: Pick<ProductoAdmin, 'variantes'>): boolean {

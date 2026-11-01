@@ -9,7 +9,7 @@ export const textoDisponibilidad: Record<Disponibilidad, string> = {
 }
 
 /**
- * Elegir tono y agregar al pedido. Lo comparten la tarjeta y la página del producto,
+ * Elegir color, medida o modelo y agregar al pedido. Lo comparten la tarjeta y la página del producto,
  * así las dos se comportan igual.
  */
 export function useAgregar(producto: Producto, varianteInicial?: string) {
@@ -42,14 +42,20 @@ export function useAgregar(producto: Producto, varianteInicial?: string) {
     tieneVariantes,
     disponibilidad,
     sinStock: disponibilidad === 'sin-stock',
-    /** "tonos" o "aromas". */
-    plural: `${(producto.tipoVariante ?? 'tono').toLowerCase()}s`,
+    /** "colores", "medidas" o "modelos". */
+    plural: pluralVariante(producto.tipoVariante),
     agregado,
     agregar,
   }
 }
 
-/** Dirección de la página de un producto, con el tono elegido si hay. */
+/** "Color" → "colores", "Medida" → "medidas". */
+export function pluralVariante(tipo = 'Opción'): string {
+  const t = tipo.toLowerCase()
+  return /[aeiou]$/.test(t) ? `${t}s` : `${t}es`
+}
+
+/** Dirección de la página de un producto, con la variante elegida si hay. */
 export function rutaProducto(id: string, variante?: string): string {
-  return `/catalogo/${id}${variante ? `?tono=${encodeURIComponent(variante)}` : ''}`
+  return `/catalogo/${id}${variante ? `?opcion=${encodeURIComponent(variante)}` : ''}`
 }

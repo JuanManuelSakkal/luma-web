@@ -32,6 +32,7 @@ type FilaPublica = {
   nombre: string
   categoria: string
   categoria_orden: number
+  subcategoria: string | null
   precio: number
   nota: string | null
   tipo_variante: string | null
@@ -60,6 +61,7 @@ async function desdeSupabase(): Promise<Catalogo> {
     id: f.id,
     nombre: f.nombre,
     categoria: f.categoria,
+    subcategoria: f.subcategoria?.trim() || undefined,
     precio: f.precio,
     variantes: f.variantes,
     tipoVariante: f.tipo_variante ?? undefined,

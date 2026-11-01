@@ -8,14 +8,16 @@ import { Pie } from './componentes/Pie'
 import { PedidoProvider } from './pedido/PedidoContext'
 import { Catalogo } from './paginas/Catalogo'
 import { Inicio } from './paginas/Inicio'
+import { Informacion } from './paginas/Informacion'
 import { Producto } from './paginas/Producto'
 
 // El admin se carga aparte, así no suma peso a la web pública.
 const AdminApp = lazy(() => import('./admin/AdminApp'))
 
 const titulos: Record<string, string> = {
-  '/': 'Mond · Insumos de uñas en Montecarlo',
-  '/catalogo': 'Catálogo · Mond',
+  '/': 'Luma · Lo que elegís',
+  '/catalogo': 'Catálogo · Luma',
+  '/cambios-y-cuidados': 'Cambios y cuidados · Luma',
 }
 
 /** Hasta cuánto se insiste en volver a la posición, mientras la página termina de cargar. */
@@ -40,7 +42,7 @@ function AlNavegar() {
   useEffect(() => {
     // La página de cada producto pone su propio título.
     if (!pathname.startsWith('/admin') && !pathname.startsWith('/catalogo/'))
-      document.title = titulos[pathname] ?? 'Mond'
+      document.title = titulos[pathname] ?? 'Luma'
   }, [pathname])
 
   // Anota dónde está cada página mientras se scrollea.
@@ -113,6 +115,7 @@ function SitioPublico() {
               <Route path="/" element={<Inicio />} />
               <Route path="/catalogo" element={<Catalogo />} />
               <Route path="/catalogo/:id" element={<Producto />} />
+              <Route path="/cambios-y-cuidados" element={<Informacion />} />
               <Route path="*" element={<NoEncontrada />} />
             </Routes>
           </main>

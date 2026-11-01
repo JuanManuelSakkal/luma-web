@@ -3,6 +3,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { aSlug } from '../catalogo/importar'
 import { Muestrario } from '../componentes/Muestrario'
 import { pesos } from '../pedido/pedido'
+import { pluralVariante } from '../pedido/useAgregar'
 import { listarCategorias, listarProductos } from './api'
 import estilos from './admin.module.css'
 import { UNICA, type ProductoAdmin, type VarianteAdmin } from './tipos'
@@ -19,7 +20,7 @@ import {
 } from './ventas'
 
 /**
- * Pantalla para anotar ventas desde el celular: buscar el producto, elegir el tono,
+ * Pantalla para anotar ventas desde el celular: buscar el producto, elegir la variante,
  * la cantidad y listo. Cada venta descuenta el stock.
  * Con `usuario` (las vendedoras) solo se pueden deshacer las ventas propias.
  */
@@ -173,11 +174,14 @@ function FormularioVenta({
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])
-  const tipo = `${(producto.tipo_variante ?? 'Tono').toLowerCase()}s`
+  const tipo = pluralVariante(producto.tipo_variante ?? 'Color')
 
   async function anotar(e: FormEvent) {
     e.preventDefault()
-    if (!variante?.id) return setError(`Elegí el ${(producto.tipo_variante ?? 'tono').toLowerCase()}.`)
+    if (!variante?.id)
+      return setError(
+        `Elegí ${(producto.tipo_variante ?? 'Color') === 'Medida' ? 'la' : 'el'} ${(producto.tipo_variante ?? 'color').toLowerCase()}.`,
+      )
     setGuardando(true)
     setError('')
     try {
@@ -198,7 +202,7 @@ function FormularioVenta({
       {conTonos && (
         <>
           <div className={estilos.filaTono}>
-            <p className={estilos.suave}>{producto.tipo_variante ?? 'Tono'}</p>
+            <p className={estilos.suave}>{producto.tipo_variante ?? 'Color'}</p>
             {producto.muestrario_url && (
               <button type="button" className={estilos.enlace} onClick={() => setViendoTonos(true)}>
                 Ver {tipo}

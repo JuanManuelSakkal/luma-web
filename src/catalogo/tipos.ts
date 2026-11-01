@@ -1,28 +1,30 @@
 export type Disponibilidad = 'disponible' | 'pocas' | 'sin-stock'
 
 export type Variante = {
-  /** Tono o aroma tal como se muestra: "#3", "Lavanda", "Halo". */
+  /** Color, medida o modelo tal como se muestra: "Dorado", "16", "Corazón". */
   nombre: string
   disponibilidad: Disponibilidad
 }
 
 export type Producto = {
-  /** Identificador fijo y legible, por ejemplo "top-cristal-15-ml". */
+  /** Identificador fijo y legible, por ejemplo "aros-argolla-dorada". */
   id: string
   nombre: string
   categoria: string
+  /** Por ejemplo "Argollas" dentro de "Aros". Opcional. */
+  subcategoria?: string
   /** Precio en pesos, sin decimales. */
   precio: number
-  /** Vacío si el producto no tiene tonos ni aromas. */
+  /** Vacío si el producto no tiene colores, medidas ni modelos. */
   variantes: Variante[]
-  /** Etiqueta del selector de variantes: "Tono" o "Aroma". */
+  /** Etiqueta del selector de variantes: "Color", "Medida" o "Modelo". */
   tipoVariante?: string
-  /** Aclaración corta, por ejemplo "Tonos surtidos". */
+  /** Aclaración corta, por ejemplo "Colores surtidos". */
   nota?: string
   destacado: boolean
   disponibilidad: Disponibilidad
   imagenUrl?: string
-  /** Foto con todos los tonos y sus números, para elegir el tono. */
+  /** Foto con todas las variantes juntas, para elegir. */
   muestrarioUrl?: string
   /** Texto largo para la página del producto (ver catalogo/descripcion.ts). */
   descripcion?: string

@@ -9,13 +9,13 @@ import { useCarga } from './useCarga'
 
 function resumenStock(p: ProductoAdmin): { texto: string; alerta: boolean } {
   const activas = p.variantes.filter((v) => v.activo)
-  if (activas.length === 0) return { texto: 'Sin tonos activos', alerta: true }
+  if (activas.length === 0) return { texto: 'Sin variantes activas', alerta: true }
   if (activas.every((v) => v.stock === null)) return { texto: 'Sin controlar', alerta: false }
   const sinStock = activas.filter((v) => v.stock === 0).length
   const total = activas.reduce((t, v) => t + (v.stock ?? 0), 0)
   if (activas.length === 1 && activas[0].nombre === UNICA) return { texto: String(total), alerta: total <= 3 }
   return {
-    texto: `${total} en ${activas.length} tonos${sinStock ? ` · ${sinStock} sin stock` : ''}`,
+    texto: `${total} en ${activas.length} variantes${sinStock ? ` · ${sinStock} sin stock` : ''}`,
     alerta: sinStock > 0,
   }
 }
@@ -78,8 +78,8 @@ export function ListaProductos({ sb }: { sb: SupabaseClient }) {
           <div className={estilos.filtros}>
             <input
               type="search"
-              placeholder="Buscar producto o tono"
-              aria-label="Buscar producto o tono"
+              placeholder="Buscar producto o variante"
+              aria-label="Buscar producto o variante"
               value={busqueda}
               onChange={(e) => cambiar('q', e.target.value)}
             />

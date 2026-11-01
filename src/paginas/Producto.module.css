@@ -9,7 +9,7 @@
   margin-bottom: 0.4rem;
   border: 0;
   background: none;
-  color: var(--bordo);
+  color: var(--violeta);
   font: inherit;
   text-decoration: none;
   cursor: pointer;
@@ -49,7 +49,7 @@
   border: 0;
   border-radius: var(--radio);
   overflow: hidden;
-  background: var(--bordo);
+  background: var(--lila);
   cursor: zoom-in;
 }
 
@@ -75,9 +75,9 @@ div.foto {
 }
 
 .placeholder {
-  width: 32%;
-  color: var(--amarillo);
-  opacity: 0.9;
+  width: 30%;
+  color: var(--violeta);
+  opacity: 0.22;
 }
 
 .etiqueta {
@@ -88,7 +88,7 @@ div.foto {
   border-radius: 999px;
   font-size: 0.85rem;
   background: var(--blanco);
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .sin-stock {
@@ -97,8 +97,8 @@ div.foto {
 }
 
 .pocas {
-  background: var(--amarillo);
-  color: var(--bordo);
+  background: var(--aqua);
+  color: var(--violeta);
 }
 
 .datos {
@@ -118,7 +118,7 @@ div.foto {
 }
 
 .categoria a:hover {
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .nombre {
@@ -134,7 +134,7 @@ div.foto {
 .precio {
   margin: 0.5rem 0 1rem;
   font-size: 1.8rem;
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .tonos {
@@ -150,7 +150,7 @@ div.foto {
 }
 
 .elegido {
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .botonesTono {
@@ -171,13 +171,13 @@ div.foto {
 }
 
 .tono:hover:not(:disabled) {
-  border-color: var(--bordo);
+  border-color: var(--violeta);
 }
 
 .tono[aria-pressed='true'] {
-  border-color: var(--bordo);
-  background: var(--bordo);
-  color: var(--amarillo);
+  border-color: var(--violeta);
+  background: var(--violeta);
+  color: var(--blanco);
 }
 
 .tono:disabled {
@@ -204,7 +204,7 @@ div.foto {
   padding: 0.5rem 0;
   border: 0;
   background: none;
-  color: var(--bordo);
+  color: var(--violeta);
   font: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -232,7 +232,7 @@ div.foto {
   border: 0;
   background: none;
   font-size: 1.3rem;
-  color: var(--bordo);
+  color: var(--violeta);
   cursor: pointer;
 }
 
@@ -261,7 +261,7 @@ div.foto {
   padding: 0;
   border: 0;
   background: none;
-  color: var(--bordo);
+  color: var(--violeta);
   font: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;
@@ -276,7 +276,7 @@ div.foto {
 
 .extras a,
 .extras button {
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .descripcion {
@@ -329,7 +329,7 @@ div.foto {
   border: 0;
   border-radius: 50%;
   background: var(--blanco);
-  color: var(--bordo);
+  color: var(--violeta);
   font-size: 1.8rem;
   line-height: 1;
   cursor: pointer;
@@ -338,7 +338,7 @@ div.foto {
 /* Mientras carga el catálogo. */
 .gris,
 .lineaGris {
-  background: var(--crema);
+  background: var(--lila);
 }
 
 .gris {
@@ -352,4 +352,32 @@ div.foto {
 
 .corta {
   width: 45%;
+}
+
+/* Envío, pago y cambios, a la vista antes de comprar. */
+.garantias {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.6rem 0 0;
+  padding: 1.2rem 0 0;
+  border-top: 1px solid var(--borde);
+  list-style: none;
+  font-size: 0.92rem;
+  color: var(--texto-suave);
+}
+
+.garantias li {
+  display: flex;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.garantias li::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--aqua);
+  transform: translateY(-1px);
 }

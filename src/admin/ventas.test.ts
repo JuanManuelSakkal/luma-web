@@ -11,7 +11,7 @@ const venta = (v: Partial<Venta>): Venta => ({
   precio_unitario: 5000,
   nota: null,
   vendedor: null,
-  vendedor_nombre: 'Tía',
+  vendedor_nombre: 'Mary',
   ...v,
 })
 
@@ -56,6 +56,6 @@ describe('ventas', () => {
     expect(csv.startsWith('﻿')).toBe(true)
     const [encabezado, fila] = csv.slice(1).split('\r\n')
     expect(encabezado).toBe('fecha,hora,producto,variante,cantidad,precio_unitario,total,vendio,nota')
-    expect(fila).toContain(',Kapping,#3,2,5000,10000,Tía,"Debe, paga el viernes"')
+    expect(fila).toContain(',Kapping,#3,2,5000,10000,Mary,"Debe, paga el viernes"')
   })
 })

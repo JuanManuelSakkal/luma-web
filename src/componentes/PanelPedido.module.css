@@ -12,7 +12,8 @@
 }
 
 .panel::backdrop {
-  background: rgb(42 26 26 / 0.5);
+  background: rgb(43 32 48 / 0.45);
+  backdrop-filter: blur(2px);
 }
 
 .contenido {
@@ -41,7 +42,7 @@
   background: none;
   font-size: 2rem;
   line-height: 1;
-  color: var(--bordo);
+  color: var(--violeta);
   cursor: pointer;
 }
 
@@ -89,7 +90,7 @@
 }
 
 .subtotal {
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .cantidad {
@@ -106,7 +107,7 @@
   border: 0;
   background: none;
   font-size: 1.2rem;
-  color: var(--bordo);
+  color: var(--violeta);
   cursor: pointer;
 }
 
@@ -124,7 +125,7 @@
 
 .total strong {
   font-weight: 400;
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .campos {
@@ -164,4 +165,50 @@
   color: var(--texto-suave);
   text-decoration: underline;
   cursor: pointer;
+}
+
+.sinEnvio {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.envios {
+  display: grid;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 0.95rem;
+}
+
+.envios legend {
+  padding: 0;
+  margin-bottom: 0.3rem;
+}
+
+.campos .opcion {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  cursor: pointer;
+}
+
+.campos .opcion:has(input:checked) {
+  border-color: var(--violeta);
+  background: var(--lila);
+}
+
+.campos .opcion input {
+  min-height: 0;
+  margin-top: 0.3em;
+  accent-color: var(--violeta);
+}
+
+.detalleOpcion {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--texto-suave);
 }

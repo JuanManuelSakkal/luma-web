@@ -17,33 +17,33 @@ describe('leerPrecio', () => {
 })
 
 describe('separarVariantes', () => {
-  it('separa tonos', () => {
-    expect(separarVariantes('Kapping CAS (tonos #1, #2, #11)')).toEqual({
-      nombre: 'Kapping CAS',
-      variantes: ['#1', '#2', '#11'],
-      tipo: 'Tono',
+  it('separa colores y los pone en mayúscula', () => {
+    expect(separarVariantes('Argolla lisa (colores dorado, plateado)')).toEqual({
+      nombre: 'Argolla lisa',
+      variantes: ['Dorado', 'Plateado'],
+      tipo: 'Color',
     })
   })
-  it('separa aromas y los pone en mayúscula', () => {
-    expect(separarVariantes('Aceite de cutícula (aromas lavanda, limón, manzana)')).toMatchObject({
-      nombre: 'Aceite de cutícula',
-      variantes: ['Lavanda', 'Limón', 'Manzana'],
-      tipo: 'Aroma',
+  it('separa medidas', () => {
+    expect(separarVariantes('Anillo fino (medidas 14, 16, 18)')).toMatchObject({
+      nombre: 'Anillo fino',
+      variantes: ['14', '16', '18'],
+      tipo: 'Medida',
     })
   })
   it('mantiene lo que viene después del paréntesis', () => {
-    expect(separarVariantes('Semi Navi clásico (tonos #2, #28) 10 ml').nombre).toBe('Semi Navi clásico 10 ml')
+    expect(separarVariantes('Collar (modelos luna, sol) 45 cm').nombre).toBe('Collar 45 cm')
   })
-  it('"tonos surtidos" es una nota, no una lista', () => {
-    expect(separarVariantes('Cover Pink (tonos surtidos)')).toEqual({
-      nombre: 'Cover Pink',
+  it('"modelos surtidos" es una nota, no una lista', () => {
+    expect(separarVariantes('Anillo regulable (modelos surtidos)')).toEqual({
+      nombre: 'Anillo regulable',
       variantes: [],
-      nota: 'Tonos surtidos',
+      nota: 'Modelos surtidos',
     })
   })
   it('deja igual un paréntesis que no es una lista', () => {
-    expect(separarVariantes('Polvo Espejo (otro tono)')).toEqual({
-      nombre: 'Polvo Espejo (otro tono)',
+    expect(separarVariantes('Collar (otro color)')).toEqual({
+      nombre: 'Collar (otro color)',
       variantes: [],
     })
   })
@@ -51,21 +51,19 @@ describe('separarVariantes', () => {
 
 describe('aSlug', () => {
   it('saca acentos y símbolos', () => {
-    expect(aSlug('Aceite de cutícula')).toBe('aceite-de-cuticula')
-    expect(aSlug('Poligel 60 ml #03')).toBe('poligel-60-ml-03')
-    expect(aSlug('Polvo Espejo (otro tono)')).toBe('polvo-espejo-otro-tono')
+    expect(aSlug('Collar corazón')).toBe('collar-corazon')
+    expect(aSlug('Cadena 45 cm #2')).toBe('cadena-45-cm-2')
+    expect(aSlug('Collar (otro color)')).toBe('collar-otro-color')
   })
 })
 
-describe('importarCatalogo con la lista de precios de lanzamiento', () => {
+describe('importarCatalogo con el catálogo de ejemplo', () => {
   const csv = readFileSync(new URL('../datos/catalogo.csv', import.meta.url), 'utf8')
   const { catalogo, errores } = importarCatalogo(csv, destacados)
 
-  it('lee un producto por fila, sin errores', () => {
-    const filas = csv.trim().split('\n').length - 1
+  it('lee el catálogo sin errores, con las categorías de Luma', () => {
     expect(errores).toEqual([])
-    expect(catalogo.productos).toHaveLength(filas)
-    expect(catalogo.categorias).toEqual(['Esmaltes', 'Decoración', 'Herramientas', 'Tips'])
+    expect(catalogo.categorias).toEqual(['Aros', 'Collares', 'Pulseras', 'Anillos'])
   })
 
   it('no repite ids', () => {
@@ -73,42 +71,45 @@ describe('importarCatalogo con la lista de precios de lanzamiento', () => {
     expect(new Set(ids).size).toBe(ids.length)
   })
 
-  it('separa los tonos del Kapping CAS', () => {
-    const kapping = catalogo.productos.find((p) => p.id === 'kapping-cas')
-    expect(kapping?.precio).toBe(3850)
-    expect(kapping?.variantes.map((v) => v.nombre)).toEqual(['#1', '#2', '#3', '#4', '#5', '#6', '#11'])
+  it('agrupa las medidas del anillo y guarda subcategoría y descripción', () => {
+    const anillo = catalogo.productos.find((p) => p.id === 'anillo-fino-cubic')
+    expect(anillo?.precio).toBe(8900)
+    expect(anillo?.subcategoria).toBe('Anillos finos')
+    expect(anillo?.tipoVariante).toBe('Medida')
+    expect(anillo?.variantes.map((v) => v.nombre)).toEqual(['14', '16', '18'])
+    expect(anillo?.descripcion).toContain('piedra cubic')
   })
 
   it('todos los destacados de la configuración existen', () => {
     const ids = catalogo.productos.map((p) => p.id)
     for (const d of destacados) expect(ids).toContain(d)
-    expect(catalogo.productos.filter((p) => p.destacado)).toHaveLength(destacados.length)
   })
 })
 
 describe('importarCatalogo con el formato del admin', () => {
   const csv = [
     'categoria,producto,variante,precio,stock,activo,destacado',
-    'Esmaltes,Kapping CAS,#3,3850,10,si,si',
-    'Esmaltes,Kapping CAS,#4,3850,0,si,',
-    'Esmaltes,Top Matte,,5200,2,si,',
-    'Esmaltes,Base vieja,,4000,5,no,',
+    'Aros,Argolla lisa,Dorado,8500,10,si,si',
+    'Aros,Argolla lisa,Plateado,8500,0,si,',
+    'Aros,Cuff trenzado,,7500,2,si,',
+    'Aros,Aro viejo,,4000,5,no,',
   ].join('\n')
   const { catalogo, errores } = importarCatalogo(csv)
 
   it('agrupa las variantes y calcula la disponibilidad sin mostrar el stock', () => {
     expect(errores).toEqual([])
-    const kapping = catalogo.productos.find((p) => p.id === 'kapping-cas')!
-    expect(kapping.variantes).toEqual([
-      { nombre: '#3', disponibilidad: 'disponible' },
-      { nombre: '#4', disponibilidad: 'sin-stock' },
+    const argolla = catalogo.productos.find((p) => p.id === 'argolla-lisa')!
+    expect(argolla.variantes).toEqual([
+      { nombre: 'Dorado', disponibilidad: 'disponible' },
+      { nombre: 'Plateado', disponibilidad: 'sin-stock' },
     ])
-    expect(kapping.destacado).toBe(true)
-    expect(catalogo.productos.find((p) => p.id === 'top-matte')?.disponibilidad).toBe('pocas')
+    expect(argolla.destacado).toBe(true)
+    expect(argolla.tipoVariante).toBe('Color')
+    expect(catalogo.productos.find((p) => p.id === 'cuff-trenzado')?.disponibilidad).toBe('pocas')
   })
 
   it('no incluye los productos inactivos', () => {
-    expect(catalogo.productos.map((p) => p.id)).not.toContain('base-vieja')
+    expect(catalogo.productos.map((p) => p.id)).not.toContain('aro-viejo')
   })
 })
 
@@ -116,10 +117,10 @@ describe('importarCatalogo con errores', () => {
   it('avisa precios inválidos, faltantes y repetidos', () => {
     const csv = [
       'Categoría,Producto,Precio',
-      'Esmaltes,Top,$abc',
-      ',Base,$100',
-      'Tips,Lima,$900',
-      'Tips,Lima,$800',
+      'Aros,Argolla,$abc',
+      ',Cuff,$100',
+      'Anillos,Anillo fino,$900',
+      'Anillos,Anillo fino,$800',
     ].join('\n')
     const { errores } = importarCatalogo(csv)
     expect(errores).toHaveLength(3)

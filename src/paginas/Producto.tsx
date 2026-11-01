@@ -4,17 +4,17 @@ import { useCatalogo } from '../catalogo/CatalogoContext'
 import type { Producto as TipoProducto } from '../catalogo/tipos'
 import { Carrusel } from '../componentes/Carrusel'
 import { Descripcion } from '../componentes/Descripcion'
-import { IconoMond } from '../componentes/IconoMond'
+import { IconoLuma } from '../componentes/IconoLuma'
 import { IconoWhatsApp } from '../componentes/IconoWhatsApp'
 import { Muestrario } from '../componentes/Muestrario'
 import { TarjetaProducto } from '../componentes/TarjetaProducto'
-import { contacto, enlaces } from '../config'
+import { diasParaCambios, enlaces, origenSitio } from '../config'
 import { pesos } from '../pedido/pedido'
 import { usePedido } from '../pedido/PedidoContext'
 import { rutaProducto, textoDisponibilidad, useAgregar } from '../pedido/useAgregar'
 import estilos from './Producto.module.css'
 
-/** Con más tonos que esto, una lista desplegable es más cómoda que los botones. */
+/** Con más variantes que esto, una lista desplegable es más cómoda que los botones. */
 const MAX_BOTONES_TONO = 24
 const MAX_RELACIONADOS = 8
 
@@ -56,17 +56,17 @@ export function Producto() {
 function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionados: TipoProducto[] }) {
   const [parametros, setParametros] = useSearchParams()
   const { variante, setVariante, tieneVariantes, disponibilidad, sinStock, plural, agregado, agregar } =
-    useAgregar(producto, parametros.get('tono') ?? undefined)
+    useAgregar(producto, parametros.get('opcion') ?? undefined)
   const { setAbierto } = usePedido()
   const [cantidad, setCantidad] = useState(1)
   const [fotoGrande, setFotoGrande] = useState(false)
   const [viendoMuestrario, setViendoMuestrario] = useState(false)
   const [copiado, setCopiado] = useState(false)
-  const tipo = producto.tipoVariante ?? 'Tono'
-  const enlace = `https://${contacto.dominio}${rutaProducto(producto.id)}`
+  const tipo = producto.tipoVariante ?? 'Color'
+  const enlace = `${origenSitio()}${rutaProducto(producto.id)}`
 
   useEffect(() => {
-    document.title = `${producto.nombre} · Mond`
+    document.title = `${producto.nombre} · Luma`
   }, [producto.nombre])
 
   useEffect(() => {
@@ -77,17 +77,17 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
 
   function elegir(nombre: string) {
     setVariante(nombre)
-    // El tono queda en la dirección, así el link compartido abre con ese tono.
+    // La variante queda en la dirección, así el link compartido abre con esa variante.
     const nuevos = new URLSearchParams(parametros)
-    nuevos.set('tono', nombre)
+    nuevos.set('opcion', nombre)
     setParametros(nuevos, { replace: true, preventScrollReset: true })
   }
 
   async function compartir() {
-    const url = `https://${contacto.dominio}${rutaProducto(producto.id, tieneVariantes ? variante : undefined)}`
+    const url = `${origenSitio()}${rutaProducto(producto.id, tieneVariantes ? variante : undefined)}`
     if (navigator.share) {
       try {
-        await navigator.share({ title: `${producto.nombre} · Mond`, url })
+        await navigator.share({ title: `${producto.nombre} · Luma`, url })
       } catch {
         // La persona cerró el menú de compartir.
       }
@@ -103,8 +103,8 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
 
   const nombreConTono = tieneVariantes && variante ? `${producto.nombre} ${variante}` : producto.nombre
   const consulta = sinStock
-    ? `¡Hola Mond! Avisame cuando vuelva a entrar ${nombreConTono}. ${enlace}`
-    : `¡Hola Mond! Tengo una consulta sobre ${nombreConTono}. ${enlace}`
+    ? `¡Hola Luma! Avisame cuando vuelva a entrar ${nombreConTono}. ${enlace}`
+    : `¡Hola Luma! Tengo una consulta sobre ${nombreConTono}. ${enlace}`
 
   return (
     <div className={`contenedor ${estilos.pagina}`}>
@@ -124,7 +124,7 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
             </button>
           ) : (
             <div className={estilos.foto}>
-              <IconoMond className={estilos.placeholder} titulo="" />
+              <IconoLuma className={estilos.placeholder} titulo="" />
               <Etiqueta disponibilidad={disponibilidad} />
             </div>
           )}
@@ -135,6 +135,16 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
             <Link to={`/catalogo?categoria=${encodeURIComponent(producto.categoria)}`}>
               {producto.categoria}
             </Link>
+            {producto.subcategoria && (
+              <>
+                {' · '}
+                <Link
+                  to={`/catalogo?categoria=${encodeURIComponent(producto.categoria)}&sub=${encodeURIComponent(producto.subcategoria)}`}
+                >
+                  {producto.subcategoria}
+                </Link>
+              </>
+            )}
           </p>
           <h1 className={estilos.nombre}>{producto.nombre}</h1>
           {producto.nota && <p className={estilos.nota}>{producto.nota}</p>}
@@ -242,6 +252,14 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
               {copiado ? 'Link copiado ✓' : 'Compartir'}
             </button>
           </div>
+          <ul className={estilos.garantias}>
+            <li>Envío por moto en CABA o por Correo Argentino a todo el país</li>
+            <li>Pagás por transferencia bancaria</li>
+            <li>
+              Cambios dentro de los {diasParaCambios} días.{' '}
+              <Link to="/cambios-y-cuidados">Ver condiciones</Link>
+            </li>
+          </ul>
         </div>
       </div>
 

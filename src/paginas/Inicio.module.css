@@ -1,80 +1,40 @@
+/* Portada: fondo claro con un brillo aqua y lila muy suave, y el logo grande en violeta. */
 .portada {
-  background: var(--bordo);
-  color: var(--blanco);
-  padding-block: clamp(3rem, 10vw, 4rem);
+  position: relative;
   overflow: hidden;
+  padding-block: clamp(3.5rem, 12vw, 7rem) clamp(3rem, 9vw, 5.5rem);
+  background:
+    radial-gradient(60% 70% at 15% 20%, rgb(162 213 207 / 0.35), transparent 70%),
+    radial-gradient(55% 65% at 90% 85%, rgb(84 44 93 / 0.1), transparent 70%), var(--crema);
+  border-bottom: 1px solid var(--borde);
 }
 
 .portadaContenido {
-  display: grid;
-  gap: 1rem;
-  align-items: center;
-}
-
-.portadaTexto {
   display: grid;
   gap: 2rem;
   justify-items: center;
   text-align: center;
 }
 
-/* El fondo de la foto es bordo como la portada: la máscara funde los bordes
-   para que la chica quede flotando sobre el fondo sin que se vea el recorte. */
-.portadaFoto {
-  display: none;
-}
-
-.portadaFoto img {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  object-position: 62% 60%;
-  /* La elipse llega hasta el borde inferior sin desvanecerse: el lineal de abajo
-     termina de fundirla. Las dos máscaras se intersectan. */
-  -webkit-mask-image:
-    radial-gradient(ellipse 50% 65% at 50% 65%, #000 55%, transparent 100%),
-    linear-gradient(to bottom, #000 95%, transparent);
-  -webkit-mask-composite: source-in;
-  mask-image:
-    radial-gradient(ellipse 50% 65% at 50% 65%, #000 55%, transparent 100%),
-    linear-gradient(to bottom, #000 95%, transparent);
-  mask-composite: intersect;
-}
-
-@media (min-width: 900px) {
-  .portadaContenido {
-    grid-template-columns: 1fr 1.1fr;
-  }
-
-  .portadaFoto {
-    display: block;
-  }
-
-  .portadaFoto img {
-    width: 120%;
-    max-width: none;
-    margin-block: -3rem;
-  }
-}
-
 .titulo {
   margin: 0;
   display: grid;
-  gap: 1.2rem;
+  gap: 1.6rem;
   justify-items: center;
-  color: var(--blanco);
 }
 
 .logoGrande {
-  width: min(520px, 85vw);
+  width: min(520px, 82vw);
   height: auto;
-  color: var(--amarillo);
+  color: var(--violeta);
 }
 
 .bajada {
-  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
-  max-width: 32ch;
+  font-size: clamp(1.1rem, 2.4vw, 1.35rem);
+  font-style: italic;
+  color: var(--texto-suave);
+  max-width: 34ch;
+  line-height: 1.5;
 }
 
 .acciones {
@@ -85,47 +45,181 @@
 }
 
 .acciones :global(.boton-borde) {
-  color: var(--blanco);
+  color: var(--violeta);
 }
 
 .acciones :global(.boton-borde):hover {
-  color: var(--amarillo);
+  background: var(--violeta);
+  color: var(--blanco);
+}
+
+.datosPortada {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--texto-suave);
 }
 
 .seccion {
-  padding-block: clamp(2.5rem, 7vw, 4.5rem);
+  padding-block: clamp(3rem, 8vw, 5.5rem);
+}
+
+.encabezadoCentrado {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.encabezadoCentrado h2 {
+  margin: 0;
 }
 
 .encabezadoSeccion {
   display: flex;
   flex-wrap: wrap;
-  align-items: baseline;
+  align-items: flex-end;
   justify-content: space-between;
   gap: 0.5rem 1rem;
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.6rem;
 }
 
 .encabezadoSeccion h2 {
   margin: 0;
 }
 
+.verTodo {
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+/* Categorías */
+.categorias {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1rem;
+}
+
+.categoria {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 0.4rem;
+  padding: 2.2rem 1.2rem 1.8rem;
+  height: 100%;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  text-align: center;
+  text-decoration: none;
+  color: var(--texto);
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s,
+    transform 0.3s;
+}
+
+/* Marco fino interior, como un estuche de joyería. */
+.categoria::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.3s;
+  pointer-events: none;
+}
+
+.categoria:hover {
+  border-color: var(--aqua);
+  box-shadow: var(--sombra);
+  transform: translateY(-3px);
+}
+
+.categoria:hover::after {
+  border-color: var(--aqua-suave);
+}
+
+.iconoCategoria {
+  width: 42px;
+  height: auto;
+  color: var(--aqua);
+  margin-bottom: 0.4rem;
+  transition: color 0.3s;
+}
+
+.categoria:hover .iconoCategoria {
+  color: var(--violeta);
+}
+
+.nombreCategoria {
+  font-size: 1.7rem;
+  color: var(--violeta);
+}
+
+.detalleCategoria {
+  font-size: 0.85rem;
+  color: var(--texto-suave);
+}
+
+.fondoLila {
+  background: var(--lila);
+}
+
+.fondoAqua {
+  background: var(--aqua-fondo);
+}
+
+/* Nosotras */
+.nosotras {
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.nosotras p {
+  font-size: 1.12rem;
+  color: var(--texto-suave);
+}
+
+.iconoNosotras {
+  width: 56px;
+  height: auto;
+  margin: 0 auto 1.2rem;
+  color: var(--violeta);
+}
+
+.firma {
+  margin-top: 1.6rem;
+  font-style: italic;
+  font-size: 1.4rem !important;
+  color: var(--violeta) !important;
+}
+
+/* Cómo comprar */
 .pasos {
   list-style: none;
-  margin: 1.5rem 0 0;
+  margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.2rem;
+  gap: 1rem;
 }
 
 .paso {
-  padding: 1.3rem;
-  border: 1px solid var(--borde);
-  border-radius: var(--radio);
+  padding: 1.8rem 1.4rem;
+  background: var(--blanco);
+  border: 1px solid var(--aqua-suave);
 }
 
 .paso h3 {
-  margin: 0.8rem 0 0.3rem;
+  margin: 0.6rem 0 0.4rem;
+  font-size: 1.35rem;
 }
 
 .paso p {
@@ -134,75 +228,73 @@
 }
 
 .numero {
-  display: grid;
-  place-items: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--bordo);
-  color: var(--amarillo);
-  font-size: 1.2rem;
-}
-
-.fondoCrema {
-  background: var(--crema);
-}
-
-.zonasConFoto {
-  display: grid;
-  gap: 2rem 3rem;
-  align-items: center;
-}
-
-@media (min-width: 900px) {
-  .zonasConFoto {
-    grid-template-columns: 1.2fr 1fr;
-  }
-}
-
-.fotoEntrega {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radio);
-  box-shadow: var(--sombra);
-}
-
-.gruposZonas {
-  display: grid;
-  gap: 1.5rem;
-  margin-top: 1.5rem;
-}
-
-.zonas {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.zonas li {
-  padding: 0.35em 0.9em;
-  border-radius: 999px;
-  background: var(--crema);
-  border: 1px solid var(--borde);
-}
-
-.dia {
+  display: block;
+  font-size: 0.85rem;
+  letter-spacing: 0.2em;
   color: var(--texto-suave);
 }
 
-.bandaBordo {
-  background: var(--bordo);
+.numero::after {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  margin-top: 0.6rem;
+  background: var(--aqua);
+}
+
+/* Envíos y pagos */
+.envios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.envio {
+  padding: 1.8rem 1.4rem;
+  text-align: center;
+  border-top: 2px solid var(--aqua);
+  background: var(--blanco);
+}
+
+.envio h3 {
+  margin-bottom: 0.4rem;
+}
+
+.envio p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.alias {
+  color: var(--violeta);
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.notaEnvios {
+  max-width: 60ch;
+  margin: 2rem auto 0;
+  text-align: center;
+  color: var(--texto-suave);
+  font-style: italic;
+}
+
+/* Banda de Instagram */
+.bandaVioleta {
+  background: var(--violeta);
   color: var(--blanco);
 }
 
-.bandaBordo h2 {
-  color: var(--amarillo);
+.bandaVioleta h2 {
+  color: var(--blanco);
 }
 
-.mayoristas {
+.rotuloClaro {
+  color: var(--aqua);
+}
+
+.instagram {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -210,52 +302,99 @@
   gap: 1.5rem;
 }
 
-.mayoristas p {
+.instagram p {
   margin: 0;
   max-width: 48ch;
+  opacity: 0.85;
 }
 
+/* Preguntas */
 .preguntas {
   display: grid;
-  gap: 0.6rem;
   max-width: 760px;
+  margin: 0 auto;
+  border-top: 1px solid var(--borde);
 }
 
 .preguntas details {
-  border: 1px solid var(--borde);
-  border-radius: var(--radio-chico);
-  padding: 0.2rem 1rem;
+  border-bottom: 1px solid var(--borde);
+  padding: 0 0.2rem;
 }
 
 .preguntas summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
   cursor: pointer;
-  padding: 0.7rem 0;
-  color: var(--bordo);
-  font-size: 1.05rem;
+  padding: 1.1rem 0;
+  color: var(--violeta);
+  font-size: 1.1rem;
+  list-style: none;
+}
+
+.preguntas summary::-webkit-details-marker {
+  display: none;
+}
+
+.preguntas summary::after {
+  content: '+';
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--texto-suave);
+  transition: transform 0.2s;
+}
+
+.preguntas details[open] summary::after {
+  transform: rotate(45deg);
 }
 
 .preguntas details p {
   color: var(--texto-suave);
 }
 
+.masInfo {
+  margin: 2rem 0 0;
+  text-align: center;
+}
+
 /* Entrada de la portada al cargar: logo, bajada y botones suben escalonados. */
 @media (prefers-reduced-motion: no-preference) {
   .logoGrande,
   .bajada,
-  .acciones {
-    animation: subir 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  .acciones,
+  .datosPortada {
+    animation: subir 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
   .bajada {
-    animation-delay: 0.15s;
+    animation-delay: 0.2s;
   }
   .acciones {
-    animation-delay: 0.3s;
+    animation-delay: 0.35s;
+  }
+  .datosPortada {
+    animation-delay: 0.5s;
   }
 }
 
 @keyframes subir {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(18px);
+  }
+}
+
+@media (max-width: 600px) {
+  .categorias {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+  }
+  .categoria {
+    padding: 1.4rem 0.6rem 1.2rem;
+  }
+  .nombreCategoria {
+    font-size: 1.35rem;
+  }
+  .detalleCategoria {
+    font-size: 0.78rem;
   }
 }

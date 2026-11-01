@@ -4,14 +4,14 @@ import type { Catalogo, Disponibilidad, Producto } from './tipos'
 /**
  * Lee el catálogo desde un CSV. Entiende dos formatos:
  *
- * 1. La lista de precios de lanzamiento, tal como sale de Excel:
- *      Categoría,Producto,Precio de lanzamiento
- *      Esmaltes,"Kapping CAS (tonos #1, #2, #3)",$3.850
- *    Los tonos o aromas van entre paréntesis en el nombre.
+ * 1. Una lista de precios simple, tal como sale de Excel:
+ *      Categoría,Subcategoría,Producto,Precio
+ *      Aros,Argollas,"Argolla lisa (colores dorado, plateado)",$8.500
+ *    Los colores, medidas o modelos van entre paréntesis en el nombre. La subcategoría es opcional.
  *
  * 2. El formato del portal de admin, una fila por variante:
- *      categoria,producto,variante,precio,stock,activo,destacado
- *      Esmaltes,Kapping CAS,#3,3850,10,si,si
+ *      categoria,subcategoria,producto,variante,tipo,precio,stock,activo,destacado
+ *      Aros,Argollas,Argolla lisa,Dorado,Color,8500,10,si,si
  *    Puede traer además una columna "descripcion" (alcanza con llenarla en una fila por producto).
  */
 
@@ -39,17 +39,24 @@ export function aSlug(texto: string): string {
 }
 
 const PALABRAS_VARIANTE: Record<string, string> = {
-  tonos: 'Tono',
-  tono: 'Tono',
-  aromas: 'Aroma',
-  aroma: 'Aroma',
+  colores: 'Color',
+  color: 'Color',
+  medidas: 'Medida',
+  medida: 'Medida',
+  talles: 'Medida',
+  talle: 'Medida',
+  modelos: 'Modelo',
+  modelo: 'Modelo',
 }
 
+/** Tipos de variante que entiende la base (ver la migración de Luma). */
+export const TIPOS_VARIANTE = ['Color', 'Medida', 'Modelo'] as const
+
 /**
- * Separa los tonos o aromas que vienen entre paréntesis en el nombre.
- * "Kapping CAS (tonos #1, #2)" → { nombre: "Kapping CAS", variantes: ["#1", "#2"], tipo: "Tono" }
- * "Cover Pink (tonos surtidos)" → { nombre: "Cover Pink", variantes: [], nota: "Tonos surtidos" }
- * "Polvo Espejo (otro tono)" queda igual, porque no es una lista.
+ * Separa los colores, medidas o modelos que vienen entre paréntesis en el nombre.
+ * "Argolla lisa (colores dorado, plateado)" → { nombre: "Argolla lisa", variantes: ["Dorado", "Plateado"], tipo: "Color" }
+ * "Anillo fino (modelos surtidos)" → { nombre: "Anillo fino", variantes: [], nota: "Modelos surtidos" }
+ * "Collar (otro color)" queda igual, porque no es una lista.
  */
 export function separarVariantes(texto: string): {
   nombre: string
@@ -67,9 +74,15 @@ export function separarVariantes(texto: string): {
     .map((v) => v.trim())
     .filter(Boolean)
   if (lista.length === 1 && lista[0].toLowerCase() === 'surtidos') {
-    return { nombre, variantes: [], nota: `${tipo}s surtidos` }
+    return { nombre, variantes: [], nota: `${capitalizar(m[2].toLowerCase())} surtidos` }
   }
   return { nombre, variantes: lista.map(capitalizar), tipo }
+}
+
+/** El tipo de variante escrito en el CSV, o "Color" si no se reconoce. */
+function tipoValido(texto: string | undefined): string {
+  const t = PALABRAS_VARIANTE[(texto ?? '').trim().toLowerCase()]
+  return t ?? 'Color'
 }
 
 function capitalizar(texto: string): string {
@@ -106,6 +119,8 @@ export type ProductoImportado = {
   slug: string
   nombre: string
   categoria: string
+  /** undefined = el CSV no trae subcategoría: se mantiene la que había. */
+  subcategoria?: string
   precio: number
   tipoVariante?: string
   nota?: string
@@ -115,7 +130,7 @@ export type ProductoImportado = {
   activo: boolean
   /** stock null = el CSV no trae stock (formato lista de precios). */
   variantes: { nombre: string; stock: number | null; activo: boolean }[]
-  /** Solo para productos sin tonos. */
+  /** Solo para productos sin variantes. */
   stock: number | null
   fila: number
 }
@@ -151,8 +166,8 @@ export function leerCsv(textoCsv: string): LecturaCsv {
 
   const porSlug = new Map<string, ProductoImportado>()
   const categorias: string[] = []
-  // Productos que hasta ahora solo tienen una fila sin tono y oculta: es la variante "Único"
-  // que queda en la base cuando a un producto se le agregan tonos. Si aparecen tonos, se descarta.
+  // Productos que hasta ahora solo tienen una fila sin variante y oculta: es la variante "Único"
+  // que queda en la base cuando a un producto se le agregan variantes. Si aparecen, se descarta.
   const soloUnicaOculta = new Set<string>()
 
   parseado.data.forEach((fila, i) => {
@@ -175,12 +190,13 @@ export function leerCsv(textoCsv: string): LecturaCsv {
     }
     const activo = !formatoAdmin || !fila.activo?.trim() || esSi(fila.activo)
     const descripcion = fila.descripcion?.trim() || undefined
+    const subcategoria = fila.subcategoria?.trim() || undefined
 
     const { nombre, variantes, tipo, nota } = formatoAdmin
       ? {
           nombre: textoProducto,
           variantes: fila.variante?.trim() ? [fila.variante.trim()] : [],
-          tipo: fila.tipo?.trim() || 'Tono',
+          tipo: tipoValido(fila.tipo),
           nota: fila.nota?.trim() || undefined,
         }
       : separarVariantes(textoProducto)
@@ -201,10 +217,11 @@ export function leerCsv(textoCsv: string): LecturaCsv {
         return errores.push(`Fila ${nFila}: "${nombre} ${variantes[0]}" está repetido.`)
       }
       if (existente.precio !== precio) {
-        errores.push(`Fila ${nFila}: "${nombre}" tiene precios distintos según el tono.`)
+        errores.push(`Fila ${nFila}: "${nombre}" tiene precios distintos según la variante.`)
       }
       existente.variantes.push({ nombre: variantes[0], stock, activo })
       existente.descripcion ??= descripcion
+      existente.subcategoria ??= subcategoria
       if (esSi(fila.destacado)) existente.destacado = true
       if (activo) existente.activo = true
       return
@@ -216,6 +233,7 @@ export function leerCsv(textoCsv: string): LecturaCsv {
       slug,
       nombre,
       categoria,
+      subcategoria,
       precio,
       tipoVariante: variantes.length ? tipo : undefined,
       nota,
@@ -240,7 +258,9 @@ export function importarCatalogo(textoCsv: string, destacados: string[] = []): R
       id: p.slug,
       nombre: p.nombre,
       categoria: p.categoria,
+      subcategoria: p.subcategoria,
       precio: p.precio,
+      descripcion: p.descripcion,
       variantes: p.variantes
         .filter((v) => v.activo)
         .map((v) => ({

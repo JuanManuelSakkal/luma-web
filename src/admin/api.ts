@@ -25,7 +25,7 @@ export async function listarProductos(sb: SupabaseClient): Promise<ProductoAdmin
   const { data, error } = await sb
     .from('productos')
     .select(
-      'id, slug, nombre, categoria_id, descripcion, nota, tipo_variante, precio, destacado, activo, imagen_url, muestrario_url, variantes (id, nombre, stock, activo, orden)',
+      'id, slug, nombre, categoria_id, subcategoria, descripcion, nota, tipo_variante, precio, destacado, activo, imagen_url, muestrario_url, variantes (id, nombre, stock, activo, orden)',
     )
     .order('nombre')
   falla(error, 'No se pudieron leer los productos')
@@ -51,6 +51,7 @@ export async function guardarProducto(
     slug: p.slug,
     nombre: p.nombre.trim(),
     categoria_id: p.categoria_id,
+    subcategoria: p.subcategoria?.trim() || null,
     descripcion: p.descripcion?.trim() || null,
     nota: p.nota?.trim() || null,
     tipo_variante: p.tipo_variante,
@@ -79,16 +80,16 @@ export async function guardarProducto(
       .from('variantes')
       .select('id, nombre')
       .eq('producto_id', id)
-    falla(e1, 'No se pudieron leer los tonos')
+    falla(e1, 'No se pudieron leer las variantes')
     const sobran = (existentes ?? []).filter((v) => !nombres.includes(v.nombre)).map((v) => v.id)
     if (sobran.length) {
       const { error: e2 } = await sb.from('variantes').delete().in('id', sobran)
-      falla(e2, 'No se pudieron borrar los tonos quitados')
+      falla(e2, 'No se pudieron borrar las variantes quitadas')
     }
   }
   if (variantes.length) {
     const { error: e3 } = await sb.from('variantes').upsert(variantes, { onConflict: 'producto_id,nombre' })
-    falla(e3, `No se pudieron guardar los tonos de ${p.nombre}`)
+    falla(e3, `No se pudieron guardar las variantes de ${p.nombre}`)
   }
   return id
 }
@@ -109,7 +110,7 @@ export async function borrarProducto(sb: SupabaseClient, id: number): Promise<vo
 
 /**
  * Achica la foto en el navegador (WebP) y la sube. Devuelve la URL pública.
- * El muestrario va más grande para que se lean los números de los tonos.
+ * El muestrario va más grande para que se vean bien todas las variantes.
  */
 export async function subirFoto(
   sb: SupabaseClient,

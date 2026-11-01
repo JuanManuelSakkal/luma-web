@@ -12,13 +12,22 @@ import {
   subirFoto,
 } from './api'
 import estilos from './admin.module.css'
-import { UNICA, tieneVariantes, type Categoria, type ProductoAdmin, type VarianteAdmin } from './tipos'
+import { pluralVariante } from '../pedido/useAgregar'
+import {
+  UNICA,
+  tieneVariantes,
+  type Categoria,
+  type ProductoAdmin,
+  type TipoVariante,
+  type VarianteAdmin,
+} from './tipos'
 import { useCarga } from './useCarga'
 
 const productoNuevo = (): ProductoAdmin => ({
   slug: '',
   nombre: '',
   categoria_id: null,
+  subcategoria: null,
   descripcion: null,
   nota: null,
   tipo_variante: null,
@@ -75,9 +84,9 @@ function Formulario({
   const { state } = useLocation()
   const [p, setP] = useState<ProductoAdmin>(inicial)
   const [categorias, setCategorias] = useState(categoriasIniciales)
-  const [conTonos, setConTonos] = useState(tieneVariantes(inicial))
+  const [conVariantes, setConVariantes] = useState(tieneVariantes(inicial))
   const [nuevaCategoria, setNuevaCategoria] = useState('')
-  const [variosTonos, setVariosTonos] = useState('')
+  const [variasVariantes, setVariasVariantes] = useState('')
   const [mensaje, setMensaje] = useState<{ tipo: 'ok' | 'error'; texto: string } | null>(null)
   const [ocupado, setOcupado] = useState(false)
   const [confirmandoBorrado, setConfirmandoBorrado] = useState(false)
@@ -97,11 +106,11 @@ function Formulario({
       variantes: actual.variantes.map((v, j) => (j === i ? { ...v, ...cambios } : v)),
     }))
 
-  function pasarATonos(si: boolean) {
-    setConTonos(si)
+  function pasarAVariantes(si: boolean) {
+    setConVariantes(si)
     if (si) {
       cambiar({
-        tipo_variante: p.tipo_variante ?? 'Tono',
+        tipo_variante: p.tipo_variante ?? 'Color',
         variantes: p.variantes.filter((v) => v.nombre !== UNICA),
       })
     } else {
@@ -112,7 +121,7 @@ function Formulario({
     }
   }
 
-  function agregarTonos(texto: string) {
+  function agregarVariantes(texto: string) {
     const nombres = texto
       .split(',')
       .map((t) => t.trim())
@@ -124,7 +133,7 @@ function Formulario({
         ...nombres.map((nombre, i) => ({ nombre, stock: null, activo: true, orden: p.variantes.length + i })),
       ],
     })
-    setVariosTonos('')
+    setVariasVariantes('')
   }
 
   async function agregarCategoria() {
@@ -150,7 +159,7 @@ function Formulario({
     setOcupado(true)
     setMensaje(null)
     try {
-      // El muestrario se sube más grande para que se lean los números de los tonos.
+      // El muestrario se sube más grande para que se vean bien todas las variantes.
       const url = esMuestrario
         ? await subirFoto(sb, archivo, `${slug}-muestrario`, 2000)
         : await subirFoto(sb, archivo, slug)
@@ -175,11 +184,11 @@ function Formulario({
     if (!p.categoria_id) return 'Elegí una categoría.'
     if (!Number.isInteger(p.precio) || p.precio <= 0)
       return 'El precio tiene que ser un número mayor a 0, sin centavos.'
-    if (conTonos && p.variantes.length === 0)
-      return 'Agregá al menos un tono o aroma, o desmarcá "Tiene tonos o aromas".'
+    if (conVariantes && p.variantes.length === 0)
+      return 'Agregá al menos una variante, o desmarcá "Tiene colores, medidas o modelos".'
     const nombres = p.variantes.map((v) => v.nombre.trim())
-    if (nombres.some((n) => !n)) return 'Hay un tono sin nombre.'
-    if (new Set(nombres).size !== nombres.length) return 'Hay tonos repetidos.'
+    if (nombres.some((n) => !n)) return 'Hay una variante sin nombre.'
+    if (new Set(nombres).size !== nombres.length) return 'Hay variantes repetidas.'
     if (p.variantes.some((v) => v.stock !== null && (!Number.isInteger(v.stock) || v.stock < 0)))
       return 'El stock tiene que ser un número entero, o vacío para no controlarlo.'
     return null
@@ -291,10 +300,24 @@ function Formulario({
           </div>
 
           <label className={estilos.campo}>
+            Subcategoría (opcional)
+            <input
+              list="subcategorias-luma"
+              value={p.subcategoria ?? ''}
+              placeholder="Ej: Argollas, Cadenas, Esclavas"
+              onChange={(e) => cambiar({ subcategoria: e.target.value })}
+            />
+            <datalist id="subcategorias-luma">
+              {[...new Set(productos.map((x) => x.subcategoria).filter(Boolean))].map((s) => (
+                <option key={s} value={s!} />
+              ))}
+            </datalist>
+          </label>
+          <label className={estilos.campo}>
             Nota corta (opcional, se ve en la tarjeta)
             <input
               value={p.nota ?? ''}
-              placeholder="Ej: Tonos surtidos"
+              placeholder="Ej: Acero quirúrgico"
               onChange={(e) => cambiar({ nota: e.target.value })}
             />
           </label>
@@ -304,7 +327,7 @@ function Formulario({
               rows={6}
               value={p.descripcion ?? ''}
               placeholder={
-                'Ej: Top de terminación brillante que no amarillenta.\n\n- Contenido: 15 ml\n- Secado: 60 s en lámpara LED'
+                'Ej: Argollas lisas, livianas y cómodas para todos los días.\n\n- Material: acero quirúrgico\n- Medida: 20 mm'
               }
               onChange={(e) => cambiar({ descripcion: e.target.value })}
             />
@@ -371,33 +394,38 @@ function Formulario({
         <section className={estilos.bloque}>
           <h2>Stock</h2>
           <label className={estilos.check}>
-            <input type="checkbox" checked={conTonos} onChange={(e) => pasarATonos(e.target.checked)} />
-            Tiene tonos o aromas
+            <input
+              type="checkbox"
+              checked={conVariantes}
+              onChange={(e) => pasarAVariantes(e.target.checked)}
+            />
+            Tiene colores, medidas o modelos
           </label>
 
-          {!conTonos && unica && (
+          {!conVariantes && unica && (
             <CampoStock
               valor={unica.stock}
               alCambiar={(stock) => cambiarVariante(p.variantes.indexOf(unica), { stock })}
             />
           )}
 
-          {conTonos && (
+          {conVariantes && (
             <>
               <label className={estilos.campo}>
                 Se llaman
                 <select
-                  value={p.tipo_variante ?? 'Tono'}
-                  onChange={(e) => cambiar({ tipo_variante: e.target.value as 'Tono' | 'Aroma' })}
+                  value={p.tipo_variante ?? 'Color'}
+                  onChange={(e) => cambiar({ tipo_variante: e.target.value as TipoVariante })}
                 >
-                  <option>Tono</option>
-                  <option>Aroma</option>
+                  <option>Color</option>
+                  <option>Medida</option>
+                  <option>Modelo</option>
                 </select>
               </label>
               <table className={estilos.tabla}>
                 <thead>
                   <tr>
-                    <th>{p.tipo_variante ?? 'Tono'}</th>
+                    <th>{p.tipo_variante ?? 'Color'}</th>
                     <th>Stock</th>
                     <th>Visible</th>
                     <th>
@@ -410,7 +438,7 @@ function Formulario({
                     <tr key={i}>
                       <td>
                         <input
-                          aria-label="Nombre del tono"
+                          aria-label="Nombre de la variante"
                           value={v.nombre}
                           onChange={(e) => cambiarVariante(i, { nombre: e.target.value })}
                         />
@@ -446,21 +474,21 @@ function Formulario({
               </table>
               <div className={estilos.enLinea}>
                 <input
-                  placeholder="Agregar: #12, #13, Halo"
-                  aria-label="Agregar tonos separados por coma"
-                  value={variosTonos}
-                  onChange={(e) => setVariosTonos(e.target.value)}
+                  placeholder="Agregar: Dorado, Plateado  o  14, 16, 18"
+                  aria-label="Agregar variantes separadas por coma"
+                  value={variasVariantes}
+                  onChange={(e) => setVariasVariantes(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault()
-                      agregarTonos(variosTonos)
+                      agregarVariantes(variasVariantes)
                     }
                   }}
                 />
                 <button
                   type="button"
                   className="boton boton-borde boton-chico"
-                  onClick={() => agregarTonos(variosTonos)}
+                  onClick={() => agregarVariantes(variasVariantes)}
                 >
                   Agregar
                 </button>
@@ -496,8 +524,8 @@ function Formulario({
                     </button>
                   )}
                   <p className={estilos.suave}>
-                    Una foto con todos los {(p.tipo_variante ?? 'Tono').toLowerCase()}s y sus números. En la
-                    web aparece el botón &quot;Ver {(p.tipo_variante ?? 'Tono').toLowerCase()}s&quot; para
+                    Una foto con todos los {pluralVariante(p.tipo_variante ?? 'Color')} juntos. En la web
+                    aparece el botón &quot;Ver {pluralVariante(p.tipo_variante ?? 'Color')}&quot; para
                     abrirla.
                   </p>
                 </div>

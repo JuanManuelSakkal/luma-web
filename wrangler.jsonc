@@ -1,6 +1,6 @@
 // Configuración de Cloudflare Workers: publica la carpeta dist/ como sitio estático.
 {
-  "name": "mond-web",
+  "name": "luma-web",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist",

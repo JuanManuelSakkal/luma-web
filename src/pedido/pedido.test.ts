@@ -6,51 +6,52 @@ import { enlaces } from '../config'
 const producto = (id: string, nombre: string, precio: number): Producto => ({
   id,
   nombre,
-  categoria: 'Esmaltes',
+  categoria: 'Aros',
   precio,
   variantes: [],
   destacado: false,
   disponibilidad: 'disponible',
 })
-const top = producto('top-cristal-15-ml', 'Top Cristal 15 ml', 5200)
-const kapping = producto('kapping-cas', 'Kapping CAS', 3850)
+const aros = producto('aros-argolla', 'Aros argolla', 5200)
+const anillo = producto('anillo-regulable', 'Anillo regulable', 3850)
 
 describe('reducirPedido', () => {
-  it('suma cantidades del mismo producto y tono, y separa tonos distintos', () => {
-    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: top })
-    p = reducirPedido(p, { tipo: 'agregar', producto: top })
-    p = reducirPedido(p, { tipo: 'agregar', producto: kapping, variante: '#3' })
-    p = reducirPedido(p, { tipo: 'agregar', producto: kapping, variante: '#4' })
+  it('suma cantidades del mismo producto y color, y separa colores distintos', () => {
+    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: aros })
+    p = reducirPedido(p, { tipo: 'agregar', producto: aros })
+    p = reducirPedido(p, { tipo: 'agregar', producto: anillo, variante: 'Dorado' })
+    p = reducirPedido(p, { tipo: 'agregar', producto: anillo, variante: 'Plateado' })
     expect(p.items.map((i) => [i.productoId, i.variante, i.cantidad])).toEqual([
-      ['top-cristal-15-ml', undefined, 2],
-      ['kapping-cas', '#3', 1],
-      ['kapping-cas', '#4', 1],
+      ['aros-argolla', undefined, 2],
+      ['anillo-regulable', 'Dorado', 1],
+      ['anillo-regulable', 'Plateado', 1],
     ])
     expect(totalPedido(p.items)).toBe(5200 * 2 + 3850 * 2)
   })
 
   it('cantidad 0 quita el ítem', () => {
-    const p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: top })
-    expect(reducirPedido(p, { tipo: 'cambiarCantidad', clave: top.id, cantidad: 0 }).items).toEqual([])
+    const p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: aros })
+    expect(reducirPedido(p, { tipo: 'cambiarCantidad', clave: aros.id, cantidad: 0 }).items).toEqual([])
   })
 })
 
 describe('armarMensaje', () => {
   it('arma el texto de WhatsApp con total y datos', () => {
-    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: top, cantidad: 2 })
-    p = reducirPedido(p, { tipo: 'agregar', producto: kapping, variante: '#3' })
-    p = reducirPedido(p, { tipo: 'cliente', cliente: { nombre: 'Ana', pueblo: 'Eldorado' } })
+    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: aros, cantidad: 2 })
+    p = reducirPedido(p, { tipo: 'agregar', producto: anillo, variante: 'Dorado' })
+    p = reducirPedido(p, { tipo: 'cliente', cliente: { nombre: 'Ana', zona: 'Palermo', envio: 'moto' } })
     expect(armarMensaje(p)).toBe(
       [
-        '¡Hola Mond! Quiero hacer este pedido:',
+        '¡Hola Luma! Quiero hacer este pedido:',
         '',
-        `- 2 x Top Cristal 15 ml (${pesos(10400)})`,
-        `- 1 x Kapping CAS #3 (${pesos(3850)})`,
+        `- 2 x Aros argolla (${pesos(10400)})`,
+        `- 1 x Anillo regulable Dorado (${pesos(3850)})`,
         '',
-        `Total: ${pesos(14250)}`,
+        `Total: ${pesos(14250)} (sin envío)`,
         '',
         'Nombre: Ana',
-        'Localidad: Eldorado',
+        'Barrio o localidad: Palermo',
+        'Envío: Moto mensajería',
       ].join('\n'),
     )
   })

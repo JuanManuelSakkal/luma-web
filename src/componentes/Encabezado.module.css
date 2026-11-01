@@ -2,45 +2,52 @@
   position: sticky;
   top: 0;
   z-index: 20;
-  background: var(--bordo);
-  color: var(--amarillo);
-  box-shadow: 0 2px 12px rgb(0 0 0 / 0.15);
+  background: rgb(251 248 246 / 0.92);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
 }
 
 .fila {
   display: flex;
   align-items: center;
   gap: 1rem;
-  min-height: 64px;
+  min-height: 68px;
 }
 
 .marca {
-  color: var(--amarillo);
+  color: var(--violeta);
   display: flex;
 }
 
 .logo {
-  height: 30px;
+  height: 40px;
   width: auto;
 }
 
 .nav {
   display: flex;
-  gap: 1.25rem;
+  gap: 1.8rem;
   margin-left: auto;
 }
 
 .nav a {
-  color: var(--blanco);
+  color: var(--texto);
   text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   padding: 0.4em 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
 }
 
 .nav a:hover,
 .nav a.activo {
-  color: var(--amarillo);
-  border-bottom-color: var(--amarillo);
+  color: var(--violeta);
+  border-bottom-color: var(--aqua);
 }
 
 .botonPedido {
@@ -50,25 +57,32 @@
 .contador {
   display: inline-grid;
   place-items: center;
-  min-width: 1.6em;
-  height: 1.6em;
+  min-width: 1.7em;
+  height: 1.7em;
   padding: 0 0.35em;
   border-radius: 999px;
-  background: var(--bordo);
-  color: var(--amarillo);
-  font-size: 0.85em;
+  background: var(--aqua);
+  color: var(--violeta-oscuro);
+  font-size: 0.9em;
+  letter-spacing: 0;
 }
 
-@media (max-width: 560px) {
+@media (max-width: 640px) {
   .logo {
-    height: 24px;
+    height: 32px;
   }
   .nav {
-    gap: 0.9rem;
-    font-size: 0.95rem;
+    gap: 1rem;
+  }
+  .nav a {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+  }
+  .secundario {
+    display: none;
   }
   .botonPedido {
-    padding-inline: 0.8em;
+    padding-inline: 0.9em;
   }
 }
 

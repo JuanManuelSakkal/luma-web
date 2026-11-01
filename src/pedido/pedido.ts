@@ -1,4 +1,5 @@
 import type { Producto } from '../catalogo/tipos'
+import { formasDeEnvio } from '../config'
 
 export type ItemPedido = {
   productoId: string
@@ -8,7 +9,13 @@ export type ItemPedido = {
   cantidad: number
 }
 
-export type DatosCliente = { nombre: string; pueblo: string }
+export type DatosCliente = {
+  nombre: string
+  /** Barrio o localidad, para calcular el envío. */
+  zona: string
+  /** Id de una de las formasDeEnvio de config.ts. */
+  envio: string
+}
 
 export type Pedido = { items: ItemPedido[]; cliente: DatosCliente }
 
@@ -19,7 +26,10 @@ export type Accion =
   | { tipo: 'vaciar' }
   | { tipo: 'cliente'; cliente: Partial<DatosCliente> }
 
-export const pedidoVacio: Pedido = { items: [], cliente: { nombre: '', pueblo: '' } }
+export const pedidoVacio: Pedido = {
+  items: [],
+  cliente: { nombre: '', zona: '', envio: formasDeEnvio[0].id },
+}
 
 /** Un mismo producto en dos tonos distintos son dos ítems. */
 export function claveItem(item: { productoId: string; variante?: string }): string {
@@ -82,16 +92,18 @@ export function armarMensaje(pedido: Pedido): string {
     const nombre = i.variante ? `${i.nombre} ${i.variante}` : i.nombre
     return `- ${i.cantidad} x ${nombre} (${pesos(i.precio * i.cantidad)})`
   })
-  const { nombre, pueblo } = pedido.cliente
+  const { nombre, zona, envio } = pedido.cliente
+  const formaEnvio = formasDeEnvio.find((f) => f.id === envio)?.nombre ?? 'A convenir'
   return [
-    '¡Hola Mond! Quiero hacer este pedido:',
+    '¡Hola Luma! Quiero hacer este pedido:',
     '',
     ...lineas,
     '',
-    `Total: ${pesos(totalPedido(pedido.items))}`,
+    `Total: ${pesos(totalPedido(pedido.items))} (sin envío)`,
     '',
     `Nombre: ${nombre.trim() || '-'}`,
-    `Localidad: ${pueblo.trim() || '-'}`,
+    `Barrio o localidad: ${zona.trim() || '-'}`,
+    `Envío: ${formaEnvio}`,
   ].join('\n')
 }
 

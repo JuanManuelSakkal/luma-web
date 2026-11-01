@@ -1,7 +1,8 @@
 import Papa from 'papaparse'
 import { aSlug, type LecturaCsv, type ProductoImportado } from '../catalogo/importar'
 import { pesos } from '../pedido/pedido'
-import { UNICA, type Categoria, type ProductoAdmin, type VarianteAdmin } from './tipos'
+import { pluralVariante } from '../pedido/useAgregar'
+import { UNICA, type Categoria, type ProductoAdmin, type TipoVariante, type VarianteAdmin } from './tipos'
 
 /** Lo que va a pasar al aplicar un CSV, para mostrarlo antes de confirmar. */
 export type PlanImportacion = {
@@ -41,7 +42,7 @@ function combinar(
       orden,
     }
   })
-  // Los tonos que estaban y ya no vienen en el CSV quedan ocultos (no se borran).
+  // Las variantes que estaban y ya no vienen en el CSV quedan ocultos (no se borran).
   for (const previa of actual?.variantes ?? []) {
     if (!importadas.some((v) => v.nombre === previa.nombre)) variantes.push({ ...previa, activo: false })
   }
@@ -53,10 +54,11 @@ function combinar(
     nombre: imp.nombre,
     categoria: imp.categoria,
     categoria_id: actual?.categoria_id ?? null,
+    subcategoria: imp.subcategoria ?? actual?.subcategoria ?? null,
     // Una celda vacía (o un CSV viejo sin la columna) no borra la descripción que había.
     descripcion: imp.descripcion ?? actual?.descripcion ?? null,
     nota: imp.nota ?? (conStock ? null : (actual?.nota ?? null)),
-    tipo_variante: imp.tipoVariante === 'Aroma' ? 'Aroma' : imp.variantes.length ? 'Tono' : null,
+    tipo_variante: imp.variantes.length ? ((imp.tipoVariante as TipoVariante | undefined) ?? 'Color') : null,
     precio: imp.precio,
     // La lista de precios no trae "destacado" ni "activo": se respeta lo que había.
     destacado: conStock ? imp.destacado : (actual?.destacado ?? false),
@@ -74,6 +76,8 @@ function describirCambios(antes: ProductoAdmin, despues: ProductoAdmin, categori
   const catAntes = categorias.find((x) => x.id === antes.categoria_id)?.nombre
   const catDespues = (despues as ProductoAdmin & { categoria: string }).categoria
   if (catAntes !== catDespues) c.push(`Categoría: ${catAntes ?? '-'} → ${catDespues}`)
+  if ((antes.subcategoria ?? '') !== (despues.subcategoria ?? ''))
+    c.push(`Subcategoría: ${antes.subcategoria || '-'} → ${despues.subcategoria || '-'}`)
   if (antes.activo !== despues.activo) c.push(despues.activo ? 'Se vuelve a mostrar' : 'Se oculta')
   if (antes.destacado !== despues.destacado)
     c.push(despues.destacado ? 'Pasa a destacado' : 'Deja de ser destacado')
@@ -85,7 +89,7 @@ function describirCambios(antes: ProductoAdmin, despues: ProductoAdmin, categori
     const previa = antes.variantes.find((a) => a.nombre === v.nombre)
     const etiqueta = v.nombre === UNICA ? 'Stock' : `Stock ${v.nombre}`
     if (!previa) {
-      c.push(v.nombre === UNICA ? `Stock: ${textoStock(v.stock)}` : `Tono nuevo: ${v.nombre}`)
+      c.push(v.nombre === UNICA ? `Stock: ${textoStock(v.stock)}` : `Variante nueva: ${v.nombre}`)
     } else {
       if (previa.activo && !v.activo) c.push(`Se oculta ${v.nombre}`)
       if (!previa.activo && v.activo) c.push(`Se vuelve a mostrar ${v.nombre}`)
@@ -121,10 +125,10 @@ export function planificarImportacion(
     const final = combinar(imp, actual, lectura.conStock)
     plan.productos.push(final)
     if (!actual) {
-      const tonos = imp.variantes.length
-        ? ` · ${imp.variantes.length} ${final.tipo_variante?.toLowerCase()}s`
+      const variantes = imp.variantes.length
+        ? ` · ${imp.variantes.length} ${pluralVariante(final.tipo_variante ?? undefined)}`
         : ''
-      plan.nuevos.push({ slug: imp.slug, nombre: imp.nombre, detalle: `${pesos(imp.precio)}${tonos}` })
+      plan.nuevos.push({ slug: imp.slug, nombre: imp.nombre, detalle: `${pesos(imp.precio)}${variantes}` })
       continue
     }
     const cambios = describirCambios(actual, final, categorias)
@@ -142,19 +146,20 @@ export function planificarImportacion(
 export function exportarCsv(productos: ProductoAdmin[], categorias: Categoria[]): string {
   const filas = productos.flatMap((p) => {
     const categoria = categorias.find((c) => c.id === p.categoria_id)?.nombre ?? ''
-    // La variante "Único" oculta de un producto que después pasó a tener tonos no se exporta.
+    // La variante "Único" oculta de un producto que después pasó a tener variantes no se exporta.
     const variantes = p.variantes.filter((v) => !(v.nombre === UNICA && !v.activo && p.variantes.length > 1))
     return variantes.map((v, i) => ({
       categoria,
+      subcategoria: p.subcategoria ?? '',
       producto: p.nombre,
       variante: v.nombre === UNICA ? '' : v.nombre,
-      tipo: v.nombre === UNICA ? '' : (p.tipo_variante ?? 'Tono'),
+      tipo: v.nombre === UNICA ? '' : (p.tipo_variante ?? 'Color'),
       precio: p.precio,
       stock: v.stock ?? '',
       activo: p.activo && v.activo ? 'si' : 'no',
       destacado: p.destacado ? 'si' : '',
       nota: p.nota ?? '',
-      // Solo en la primera fila de cada producto, para no repetir el texto en cada tono.
+      // Solo en la primera fila de cada producto, para no repetir el texto en cada variante.
       descripcion: i === 0 ? (p.descripcion ?? '') : '',
     }))
   })

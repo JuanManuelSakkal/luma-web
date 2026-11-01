@@ -32,6 +32,6 @@ describe('partirDescripcion', () => {
   })
 
   it('un guion en medio de una frase no es viñeta', () => {
-    expect(partirDescripcion('Uñas soft-gel')).toEqual([{ tipo: 'parrafo', texto: 'Uñas soft-gel' }])
+    expect(partirDescripcion('Aros de acero')).toEqual([{ tipo: 'parrafo', texto: 'Aros de acero' }])
   })
 })

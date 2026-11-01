@@ -3,16 +3,21 @@
   flex-direction: column;
   background: var(--blanco);
   border: 1px solid var(--borde);
-  border-radius: var(--radio);
   overflow: hidden;
-  box-shadow: var(--sombra);
+  transition: box-shadow 0.3s;
+}
+
+@media (hover: hover) {
+  .tarjeta:hover {
+    box-shadow: var(--sombra);
+  }
 }
 
 .imagen {
   position: relative;
   aspect-ratio: 1;
-  height: 267px;
-  background: var(--bordo);
+  height: auto;
+  background: var(--lila);
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -22,32 +27,34 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.6s ease;
 }
 
 /* Zoom suave de la foto al pasar el mouse; el recuadro la recorta. */
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {
   .tarjeta:hover .imagen img {
-    transform: scale(1.2);
+    transform: scale(1.08);
   }
 }
 
-/* Sin foto: el ícono de la uña en amarillo sobre bordó. */
+/* Sin foto: la "U" del logo con el collar, en violeta suave sobre lila. */
 .placeholder {
-  width: 38%;
-  color: var(--amarillo);
-  opacity: 0.9;
+  width: 34%;
+  color: var(--violeta);
+  opacity: 0.22;
 }
 
 .etiqueta {
   position: absolute;
   top: 10px;
   left: 10px;
-  padding: 0.15em 0.7em;
+  padding: 0.2em 0.8em;
   border-radius: 999px;
-  font-size: 0.8rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   background: var(--blanco);
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .sin-stock {
@@ -59,20 +66,21 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 1rem;
+  padding: 1rem 1.1rem 1.1rem;
+  text-align: center;
 }
 
 .categoria {
   margin: 0;
-  font-size: 0.8rem;
-  letter-spacing: 0.06em;
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--texto-suave);
 }
 
 .nombre {
-  font-size: 1.1rem;
-  margin: 0.2rem 0 0.3rem;
+  font-size: 1.15rem;
+  margin: 0.3rem 0 0.2rem;
   color: var(--texto);
 }
 
@@ -93,9 +101,9 @@
 }
 
 .precio {
-  margin: 0.4rem 0 0.8rem;
-  font-size: 1.35rem;
-  color: var(--bordo);
+  margin: 0.2rem 0 0.9rem;
+  font-size: 1.15rem;
+  color: var(--violeta);
 }
 
 .selector {
@@ -111,6 +119,7 @@
   border: 1px solid var(--borde);
   border-radius: var(--radio-chico);
   background: var(--blanco);
+  text-align: center;
 }
 
 .agregar {
@@ -119,8 +128,8 @@
 }
 
 .pocas {
-  background: var(--amarillo);
-  color: var(--bordo);
+  background: var(--aqua);
+  color: var(--violeta-oscuro);
 }
 
 @media (max-width: 520px) {
@@ -133,15 +142,12 @@
   .precio {
     font-size: 1.15rem;
   }
-  .textoLargo {
-    display: none;
-  }
 }
 
 .etiquetaSelector {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -151,7 +157,7 @@
   margin: -0.5rem 0;
   border: none;
   background: none;
-  color: var(--bordo);
+  color: var(--violeta);
   font: inherit;
   text-decoration: underline;
   text-underline-offset: 3px;

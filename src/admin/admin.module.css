@@ -4,8 +4,8 @@
 }
 
 .barra {
-  background: var(--bordo);
-  color: var(--amarillo);
+  background: var(--violeta);
+  color: var(--aqua);
 }
 
 .barraFila {
@@ -20,12 +20,12 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  color: var(--amarillo);
+  color: var(--aqua);
   text-decoration: none;
 }
 
 .logo {
-  height: 24px;
+  height: 30px;
   width: auto;
 }
 
@@ -51,8 +51,8 @@
 .nav a:hover,
 .nav button:hover,
 .nav :global(a.active) {
-  color: var(--amarillo);
-  border-bottom-color: var(--amarillo);
+  color: var(--aqua);
+  border-bottom-color: var(--aqua);
 }
 
 .contenido {
@@ -138,7 +138,7 @@
 .check input {
   width: 20px;
   height: 20px;
-  accent-color: var(--bordo);
+  accent-color: var(--violeta);
 }
 
 .filtros {
@@ -170,7 +170,7 @@
 }
 
 .aviso {
-  background: var(--amarillo-suave);
+  background: var(--aqua-suave);
   border-radius: var(--radio-chico);
   padding: 0.8rem 1rem;
   margin-block: 1rem;
@@ -203,7 +203,7 @@
 }
 
 .filaProducto:hover {
-  border-color: var(--bordo);
+  border-color: var(--violeta);
 }
 
 .miniatura,
@@ -331,7 +331,7 @@
   border: 0;
   background: none;
   font-size: 1.2rem;
-  color: var(--bordo);
+  color: var(--violeta);
   cursor: pointer;
 }
 
@@ -355,7 +355,7 @@
 .enlace {
   background: none;
   border: 0;
-  color: var(--bordo);
+  color: var(--violeta);
   text-decoration: underline;
   cursor: pointer;
   padding: 0.4rem;
@@ -410,7 +410,7 @@
 }
 
 .modalAcciones :global(.boton-borde) {
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .botonPeligro {
@@ -432,7 +432,7 @@
 
 .revision summary {
   cursor: pointer;
-  color: var(--bordo);
+  color: var(--violeta);
 }
 
 .resumen {
@@ -453,7 +453,7 @@
   display: block;
   width: 100%;
   margin-top: 0.5rem;
-  accent-color: var(--bordo);
+  accent-color: var(--violeta);
 }
 
 @media (max-width: 600px) {
@@ -520,7 +520,7 @@
 }
 
 .opcionVenta:hover {
-  border-color: var(--bordo);
+  border-color: var(--violeta);
 }
 
 .tonos {
@@ -551,13 +551,13 @@
 }
 
 .tonoElegido {
-  background: var(--bordo);
-  border-color: var(--bordo);
+  background: var(--violeta);
+  border-color: var(--violeta);
   color: var(--blanco);
 }
 
 .tonoElegido small {
-  color: var(--amarillo-suave);
+  color: var(--aqua-suave);
 }
 
 .filaVenta {
@@ -632,8 +632,8 @@
 }
 
 .chipElegido {
-  background: var(--bordo);
-  border-color: var(--bordo);
+  background: var(--violeta);
+  border-color: var(--violeta);
   color: var(--blanco);
 }
 

@@ -12,12 +12,12 @@
 
 .filtros {
   position: sticky;
-  top: 64px;
+  top: 68px;
   z-index: 10;
   display: grid;
   gap: 0.8rem;
   padding: 0.8rem 0;
-  background: var(--blanco);
+  background: var(--crema);
 }
 
 .buscador input {
@@ -26,7 +26,7 @@
   padding: 0.5em 1em;
   border: 1px solid var(--borde);
   border-radius: 999px;
-  background: var(--crema);
+  background: var(--blanco);
 }
 
 .categorias {
@@ -40,17 +40,61 @@
 .chip {
   flex: none;
   min-height: 40px;
-  padding: 0.3em 1.1em;
+  padding: 0.3em 1.2em;
   border-radius: 999px;
-  border: 1px solid var(--bordo);
+  border: 1px solid var(--borde);
   background: var(--blanco);
-  color: var(--bordo);
+  color: var(--violeta);
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.chip:hover {
+  border-color: var(--violeta);
 }
 
 .chip[aria-pressed='true'] {
-  background: var(--bordo);
-  color: var(--amarillo);
+  background: var(--violeta);
+  border-color: var(--violeta);
+  color: var(--blanco);
+}
+
+/* Subcategorías: más chicas y sin borde, debajo de las categorías. */
+.subcategorias {
+  display: flex;
+  gap: 0.3rem 1.2rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.sub {
+  flex: none;
+  padding: 0.3em 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  background: none;
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.sub:hover {
+  color: var(--violeta);
+}
+
+.sub[aria-pressed='true'] {
+  color: var(--violeta);
+  border-bottom-color: var(--aqua);
+}
+
+.cabecera {
+  text-align: center;
+  padding-block: 1rem 0.6rem;
 }
 
 .resultado {
@@ -61,8 +105,8 @@
 
 .grilla {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 1.2rem;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1.6rem 1.2rem;
 }
 
 @media (max-width: 520px) {
