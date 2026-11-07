@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { PlanImportacion } from './cambios'
-import type { Categoria, ProductoAdmin, VarianteAdmin } from './tipos'
+import { UNICA, type Categoria, type ProductoAdmin, type VarianteAdmin } from './tipos'
 
 // Todas las lecturas y escrituras del portal de admin. La seguridad la pone la base:
 // si el usuario no está en la tabla admins, estas llamadas no devuelven ni cambian nada.
@@ -25,7 +25,7 @@ export async function listarProductos(sb: SupabaseClient): Promise<ProductoAdmin
   const { data, error } = await sb
     .from('productos')
     .select(
-      'id, slug, nombre, categoria_id, subcategoria, descripcion, nota, tipo_variante, precio, destacado, activo, imagen_url, muestrario_url, variantes (id, nombre, stock, activo, orden)',
+      'id, slug, nombre, categoria_id, subcategoria, descripcion, nota, tipo_variante, precio, destacado, activo, imagen_url, muestrario_url, tipo_variante2, fotos_opcion, muestrario_titulo, variantes (id, nombre, stock, activo, orden, valor1, valor2)',
     )
     .order('nombre')
   falla(error, 'No se pudieron leer los productos')
@@ -60,6 +60,9 @@ export async function guardarProducto(
     activo: p.activo,
     imagen_url: p.imagen_url,
     muestrario_url: p.muestrario_url,
+    tipo_variante2: p.tipo_variante2 ?? null,
+    fotos_opcion: p.fotos_opcion ?? {},
+    muestrario_titulo: p.muestrario_titulo?.trim() || null,
   }
   const { data, error } = p.id
     ? await sb.from('productos').update(fila).eq('id', p.id).select('id').single()
@@ -73,6 +76,9 @@ export async function guardarProducto(
     stock: v.stock,
     activo: v.activo,
     orden: v.orden ?? orden,
+    // Siempre van en todas las filas: al guardar varias juntas, lo que falta en una queda en null.
+    valor1: v.nombre === UNICA ? null : (v.valor1 ?? v.nombre.trim()),
+    valor2: p.tipo_variante2 ? (v.valor2 ?? null) : null,
   }))
   if (borrarVariantesQueFaltan && p.id) {
     const nombres = variantes.map((v) => v.nombre)

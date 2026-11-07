@@ -74,6 +74,65 @@ div.foto {
   object-fit: cover;
 }
 
+/* Al cambiar de color, la foto nueva aparece con un fundido corto. */
+.fotoImagen {
+  animation: aparecer 0.25s ease-out;
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fotoImagen {
+    animation: none;
+  }
+}
+
+/* Una foto chiquita por tono debajo de la foto grande; tocarla elige ese tono. */
+.miniaturas {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+@media (max-width: 799px) {
+  .miniaturas {
+    padding-inline: var(--margen);
+  }
+}
+
+.miniatura {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radio-chico);
+  overflow: hidden;
+  background: var(--crema);
+  cursor: pointer;
+}
+
+.miniatura img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.miniatura[aria-pressed='true'] {
+  border-color: var(--bordo);
+}
+
+.miniatura:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .placeholder {
   width: 30%;
   color: var(--violeta);

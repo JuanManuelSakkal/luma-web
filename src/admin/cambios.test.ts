@@ -60,8 +60,8 @@ describe('planificarImportacion con la lista de precios (sin stock)', () => {
     expect(k.imagen_url).toBe('https://x/foto.webp')
     expect(k.destacado).toBe(true)
     expect(k.variantes).toEqual([
-      { id: 11, nombre: '#1', stock: 5, activo: true, orden: 0 },
-      { id: undefined, nombre: '#3', stock: null, activo: true, orden: 1 },
+      { id: 11, nombre: '#1', valor1: '#1', valor2: null, stock: 5, activo: true, orden: 0 },
+      { id: undefined, nombre: '#3', valor1: '#3', valor2: null, stock: null, activo: true, orden: 1 },
       { id: 12, nombre: '#2', stock: 2, activo: false, orden: 1 },
     ])
   })
@@ -163,5 +163,71 @@ describe('exportar y volver a importar', () => {
     expect(plan.sinCambios).toBe(1)
     expect(plan.productos[0].slug).toBe('base-10-ml')
     expect(plan.productos[0].id).toBe(40)
+  })
+})
+
+describe('fotos por color y dos opciones', () => {
+  const anillo = base({
+    id: 30,
+    slug: 'anillo-luna',
+    nombre: 'Anillo Luna',
+    precio: 9000,
+    tipo_variante: 'Color',
+    tipo_variante2: 'Talle',
+    fotos_opcion: { Dorado: 'dorado.webp' },
+    muestrario_titulo: 'Guía de talles',
+    variantes: [
+      { id: 31, nombre: 'Dorado · 12', valor1: 'Dorado', valor2: '12', stock: 2, activo: true, orden: 0 },
+      { id: 32, nombre: 'Dorado · 14', valor1: 'Dorado', valor2: '14', stock: null, activo: false, orden: 1 },
+      { id: 33, nombre: 'Plateado · 12', valor1: 'Plateado', valor2: '12', stock: 1, activo: true, orden: 2 },
+      { id: 34, nombre: 'Plateado · 14', valor1: 'Plateado', valor2: '14', stock: 4, activo: true, orden: 3 },
+    ],
+  })
+
+  it('la lista de precios con solo colores conserva los talles, las fotos y el título', () => {
+    const csv = [
+      'Categoría,Producto,Precio',
+      'Esmaltes,"Anillo Luna (colores dorado, plateado)",$9.500',
+    ].join('\n')
+    const plan = planificarImportacion(leerCsv(csv), [anillo], categorias)
+    const a = plan.productos[0]
+    expect(a.tipo_variante).toBe('Color')
+    expect(a.tipo_variante2).toBe('Talle')
+    expect(a.fotos_opcion).toEqual({ Dorado: 'dorado.webp' })
+    expect(a.muestrario_titulo).toBe('Guía de talles')
+    expect(a.variantes.map((v) => [v.nombre, v.id, v.stock, v.activo])).toEqual([
+      ['Dorado · 12', 31, 2, true],
+      // La combinación que estaba apagada sigue apagada.
+      ['Dorado · 14', 32, null, false],
+      ['Plateado · 12', 33, 1, true],
+      ['Plateado · 14', 34, 4, true],
+    ])
+    expect(plan.modificados[0].cambios).toEqual(['Precio: $ 9.000 → $ 9.500'])
+  })
+
+  it('la lista de precios puede traer las dos opciones', () => {
+    const csv = [
+      'Categoría,Producto,Precio',
+      'Anillos,"Anillo Sol (colores dorado; talles 12, 14)",$8.000',
+    ].join('\n')
+    const plan = planificarImportacion(leerCsv(csv), [], categorias)
+    const a = plan.productos[0]
+    expect(a.tipo_variante2).toBe('Talle')
+    expect(a.variantes.map((v) => [v.nombre, v.valor1, v.valor2])).toEqual([
+      ['Dorado · 12', 'Dorado', '12'],
+      ['Dorado · 14', 'Dorado', '14'],
+    ])
+  })
+
+  it('lo exportado con dos opciones se lee igual y no genera cambios', () => {
+    const csv = exportarCsv([anillo, kapping], categorias)
+    expect(csv.split('\r\n')[0]).toContain('tipo 2')
+    const plan = planificarImportacion(leerCsv(csv), [anillo, kapping], categorias)
+    expect(plan.modificados).toEqual([])
+    expect(plan.productos[0].variantes.map((v) => v.nombre)).toEqual(anillo.variantes.map((v) => v.nombre))
+  })
+
+  it('el CSV de siempre no suma columnas si nadie usa dos opciones', () => {
+    expect(exportarCsv([kapping], categorias).split('\r\n')[0]).not.toContain('tipo 2')
   })
 })

@@ -9,6 +9,10 @@ export type VarianteAdmin = {
   stock: number | null
   activo: boolean
   orden: number
+  /** Valor de la primera opción ("Dorado"). Con una sola opción es igual al nombre. */
+  valor1?: string | null
+  /** Valor de la segunda opción ("14"), solo si el producto tiene dos opciones. */
+  valor2?: string | null
 }
 
 export type ProductoAdmin = {
@@ -19,7 +23,14 @@ export type ProductoAdmin = {
   subcategoria: string | null
   descripcion: string | null
   nota: string | null
-  tipo_variante: TipoVariante | null
+  /** Nombre de la primera opción: Color, Medida, Modelo… */
+  tipo_variante: string | null
+  /** Nombre de la segunda opción (Talle). null = una sola opción. */
+  tipo_variante2?: string | null
+  /** Foto de cada valor de la primera opción: { Dorado: "https://…" }. */
+  fotos_opcion?: Record<string, string>
+  /** Título del muestrario ("Guía de talles"). Vacío = "Ver el muestrario de colores". */
+  muestrario_titulo?: string | null
   precio: number
   destacado: boolean
   activo: boolean

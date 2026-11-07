@@ -13,14 +13,16 @@ import {
 } from './api'
 import estilos from './admin.module.css'
 import { pluralVariante } from '../pedido/useAgregar'
+import { FotoValor, GrillaOpciones, SubirVariasFotos } from './EditorOpciones'
 import {
-  UNICA,
-  tieneVariantes,
-  type Categoria,
-  type ProductoAdmin,
-  type TipoVariante,
-  type VarianteAdmin,
-} from './tipos'
+  normalizarOpciones,
+  pasarADosOpciones,
+  pasarAUnaOpcion,
+  ponerFoto,
+  tieneDosOpcionesAdmin,
+  valoresEje,
+} from './opcionesAdmin'
+import { UNICA, tieneVariantes, type Categoria, type ProductoAdmin, type VarianteAdmin } from './tipos'
 import { useCarga } from './useCarga'
 
 const productoNuevo = (): ProductoAdmin => ({
@@ -36,6 +38,9 @@ const productoNuevo = (): ProductoAdmin => ({
   activo: true,
   imagen_url: null,
   muestrario_url: null,
+  tipo_variante2: null,
+  fotos_opcion: {},
+  muestrario_titulo: null,
   variantes: [{ nombre: UNICA, stock: null, activo: true, orden: 0 }],
 })
 
@@ -105,6 +110,51 @@ function Formulario({
       ...actual,
       variantes: actual.variantes.map((v, j) => (j === i ? { ...v, ...cambios } : v)),
     }))
+  const dosOpciones = tieneDosOpcionesAdmin(p)
+
+  /** Con una sola opción, renombrar un color se lleva su foto (si ningún otro color se llama igual). */
+  function renombrarVariante(i: number, nombre: string) {
+    setP((actual) => {
+      const viejo = actual.variantes[i].nombre
+      const fotos = { ...actual.fotos_opcion }
+      const otroConElViejo = actual.variantes.some((v, j) => j !== i && v.nombre === viejo)
+      if (fotos[viejo] && !otroConElViejo && !fotos[nombre]) {
+        fotos[nombre] = fotos[viejo]
+        delete fotos[viejo]
+      }
+      return {
+        ...actual,
+        fotos_opcion: fotos,
+        variantes: actual.variantes.map((v, j) => (j === i ? { ...v, nombre, valor1: nombre } : v)),
+      }
+    })
+  }
+
+  function cambiarDosOpciones(si: boolean) {
+    setP((actual) =>
+      si ? pasarADosOpciones(actual, actual.tipo_variante2 || 'Talle') : pasarAUnaOpcion(actual),
+    )
+  }
+
+  /** Sube la foto de un color (o del valor de la primera opción). La foto queda en el formulario hasta guardar. */
+  async function subirFotoValor(archivo: File, valor: string) {
+    const slug = p.slug || aSlug(p.nombre) || 'producto'
+    const url = await subirFoto(sb, archivo, `${slug}-${aSlug(valor) || 'opcion'}`)
+    setP((actual) => ponerFoto(actual, valor, url))
+  }
+
+  async function elegirFotoValor(archivo: File, valor: string) {
+    setOcupado(true)
+    setMensaje(null)
+    try {
+      await subirFotoValor(archivo, valor)
+      setMensaje({ tipo: 'ok', texto: `Foto de ${valor} subida. Guardá para que quede en el producto.` })
+    } catch (e) {
+      setMensaje({ tipo: 'error', texto: (e as Error).message })
+    } finally {
+      setOcupado(false)
+    }
+  }
 
   function pasarAVariantes(si: boolean) {
     setConVariantes(si)
@@ -117,7 +167,11 @@ function Formulario({
       const stock = p.variantes.every((v) => v.stock === null)
         ? null
         : p.variantes.reduce((t, v) => t + (v.stock ?? 0), 0)
-      cambiar({ tipo_variante: null, variantes: [{ nombre: UNICA, stock, activo: true, orden: 0 }] })
+      cambiar({
+        tipo_variante: null,
+        tipo_variante2: null,
+        variantes: [{ nombre: UNICA, stock, activo: true, orden: 0 }],
+      })
     }
   }
 
@@ -185,7 +239,13 @@ function Formulario({
     if (!Number.isInteger(p.precio) || p.precio <= 0)
       return 'El precio tiene que ser un número mayor a 0, sin centavos.'
     if (conVariantes && p.variantes.length === 0)
-      return 'Agregá al menos una variante, o desmarcá "Tiene colores, medidas o modelos".'
+      return 'Agregá al menos una variante, o desmarcá "Tiene colores, talles o medidas".'
+    if (dosOpciones) {
+      if (!p.tipo_variante2?.trim()) return 'Poné el nombre de la segunda opción (por ejemplo, Talle).'
+      if (!valoresEje(p, 1).length || !valoresEje(p, 2).length)
+        return `Agregá al menos un ${(p.tipo_variante || 'color').toLowerCase()} y un ${p.tipo_variante2.toLowerCase()}.`
+      if (!p.variantes.some((v) => v.activo)) return 'Tildá "Hay" en al menos una combinación.'
+    }
     const nombres = p.variantes.map((v) => v.nombre.trim())
     if (nombres.some((n) => !n)) return 'Hay una variante sin nombre.'
     if (new Set(nombres).size !== nombres.length) return 'Hay variantes repetidas.'
@@ -202,7 +262,12 @@ function Formulario({
     setMensaje(null)
     try {
       const slug = esNuevo ? aSlug(p.nombre) : p.slug
-      await guardarProducto(sb, { ...p, slug, variantes: p.variantes.map((v, orden) => ({ ...v, orden })) })
+      const listo = normalizarOpciones(p)
+      await guardarProducto(sb, {
+        ...listo,
+        slug,
+        variantes: listo.variantes.map((v, orden) => ({ ...v, orden })),
+      })
       setMensaje({ tipo: 'ok', texto: 'Guardado ✓' })
       alGuardar()
       volverALista()
@@ -361,7 +426,7 @@ function Formulario({
         </section>
 
         <section className={estilos.bloque}>
-          <h2>Foto</h2>
+          <h2>Foto general</h2>
           <div className={estilos.foto}>
             <span className={estilos.miniaturaGrande}>
               {p.imagen_url ? <img src={p.imagen_url} alt={`Foto de ${p.nombre}`} /> : 'Sin foto'}
@@ -386,7 +451,10 @@ function Formulario({
                   Quitar foto
                 </button>
               )}
-              <p className={estilos.suave}>Se achica sola. Mejor cuadrada y con fondo liso.</p>
+              <p className={estilos.suave}>
+                Se achica sola. Mejor cuadrada y con fondo liso. Si los colores tienen foto propia, esta se ve
+                en los que no tienen.
+              </p>
             </div>
           </div>
         </section>
@@ -411,88 +479,148 @@ function Formulario({
 
           {conVariantes && (
             <>
-              <label className={estilos.campo}>
-                Se llaman
-                <select
-                  value={p.tipo_variante ?? 'Color'}
-                  onChange={(e) => cambiar({ tipo_variante: e.target.value as TipoVariante })}
-                >
-                  <option>Color</option>
-                  <option>Medida</option>
-                  <option>Modelo</option>
-                </select>
-              </label>
-              <table className={estilos.tabla}>
-                <thead>
-                  <tr>
-                    <th>{p.tipo_variante ?? 'Color'}</th>
-                    <th>Stock</th>
-                    <th>Visible</th>
-                    <th>
-                      <span className="solo-lectores">Quitar</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {p.variantes.map((v, i) => (
-                    <tr key={i}>
-                      <td>
-                        <input
-                          aria-label="Nombre de la variante"
-                          value={v.nombre}
-                          onChange={(e) => cambiarVariante(i, { nombre: e.target.value })}
-                        />
-                      </td>
-                      <td>
-                        <CampoStock
-                          valor={v.stock}
-                          alCambiar={(stock) => cambiarVariante(i, { stock })}
-                          compacto
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          aria-label={`${v.nombre} visible`}
-                          checked={v.activo}
-                          onChange={(e) => cambiarVariante(i, { activo: e.target.checked })}
-                        />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className={estilos.enlace}
-                          aria-label={`Quitar ${v.nombre}`}
-                          onClick={() => cambiar({ variantes: p.variantes.filter((_, j) => j !== i) })}
-                        >
-                          Quitar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              <div className={estilos.enLinea}>
-                <input
-                  placeholder="Agregar: Dorado, Plateado  o  14, 16, 18"
-                  aria-label="Agregar variantes separadas por coma"
-                  value={variasVariantes}
-                  onChange={(e) => setVariasVariantes(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault()
-                      agregarVariantes(variasVariantes)
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  className="boton boton-borde boton-chico"
-                  onClick={() => agregarVariantes(variasVariantes)}
-                >
-                  Agregar
-                </button>
+              <div className={estilos.dosColumnas}>
+                <label className={estilos.campo}>
+                  Se llaman
+                  <input
+                    list="nombres-opcion"
+                    value={p.tipo_variante ?? ''}
+                    placeholder="Color"
+                    onChange={(e) => cambiar({ tipo_variante: e.target.value })}
+                  />
+                </label>
+                {dosOpciones && (
+                  <label className={estilos.campo}>
+                    Segunda opción
+                    <input
+                      list="nombres-opcion"
+                      value={p.tipo_variante2 ?? ''}
+                      placeholder="Talle"
+                      onChange={(e) => cambiar({ tipo_variante2: e.target.value })}
+                    />
+                  </label>
+                )}
               </div>
+              <datalist id="nombres-opcion">
+                <option value="Color" />
+                <option value="Talle" />
+                <option value="Medida" />
+                <option value="Modelo" />
+              </datalist>
+              <label className={estilos.check}>
+                <input
+                  type="checkbox"
+                  checked={dosOpciones}
+                  onChange={(e) => cambiarDosOpciones(e.target.checked)}
+                />
+                Tiene una segunda opción (por ejemplo, color y talle)
+              </label>
+
+              <div className={estilos.accionesFotos}>
+                <SubirVariasFotos
+                  valores={valoresEje(p, 1)}
+                  ocupado={ocupado}
+                  subir={subirFotoValor}
+                  alTerminar={(texto, error) => setMensaje({ tipo: error ? 'error' : 'ok', texto })}
+                />
+                <span className={estilos.suave}>
+                  Cada foto va al {(p.tipo_variante || 'color').toLowerCase()} que aparece en el nombre del
+                  archivo (dorado.jpg → Dorado). Sin foto propia se ve la foto general.
+                </span>
+              </div>
+
+              {dosOpciones ? (
+                <GrillaOpciones
+                  p={p}
+                  setP={setP}
+                  ocupado={ocupado}
+                  subirFotoValor={(f, v) => void elegirFotoValor(f, v)}
+                />
+              ) : (
+                <>
+                  <table className={estilos.tabla}>
+                    <thead>
+                      <tr>
+                        <th>{p.tipo_variante ?? 'Color'}</th>
+                        <th>Foto</th>
+                        <th>Stock</th>
+                        <th>Visible</th>
+                        <th>
+                          <span className="solo-lectores">Quitar</span>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {p.variantes.map((v, i) => (
+                        <tr key={i}>
+                          <td>
+                            <input
+                              aria-label="Nombre de la variante"
+                              value={v.nombre}
+                              onChange={(e) => renombrarVariante(i, e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <FotoValor
+                              valor={v.nombre}
+                              url={p.fotos_opcion?.[v.nombre]}
+                              ocupado={ocupado}
+                              alSubir={(f) => void elegirFotoValor(f, v.nombre)}
+                              alQuitar={() => setP((a) => ponerFoto(a, v.nombre, null))}
+                            />
+                          </td>
+                          <td>
+                            <CampoStock
+                              valor={v.stock}
+                              alCambiar={(stock) => cambiarVariante(i, { stock })}
+                              compacto
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="checkbox"
+                              aria-label={`${v.nombre} visible`}
+                              checked={v.activo}
+                              onChange={(e) => cambiarVariante(i, { activo: e.target.checked })}
+                            />
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className={estilos.enlace}
+                              aria-label={`Quitar ${v.nombre}`}
+                              onClick={() => cambiar({ variantes: p.variantes.filter((_, j) => j !== i) })}
+                            >
+                              Quitar
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <div className={estilos.enLinea}>
+                    <input
+                      placeholder="Agregar: Dorado, Plateado  o  14, 16, 18"
+                      aria-label="Agregar variantes separadas por coma"
+                      value={variasVariantes}
+                      onChange={(e) => setVariasVariantes(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          agregarVariantes(variasVariantes)
+                        }
+                      }}
+                    />
+                    <button
+                      type="button"
+                      className="boton boton-borde boton-chico"
+                      onClick={() => agregarVariantes(variasVariantes)}
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                </>
+              )}
 
               <h3 className={estilos.subtitulo}>Muestrario</h3>
               <div className={estilos.foto}>
@@ -524,17 +652,31 @@ function Formulario({
                     </button>
                   )}
                   <p className={estilos.suave}>
-                    Una foto con todos los {pluralVariante(p.tipo_variante ?? 'Color')} juntos. En la web
-                    aparece el botón &quot;Ver {pluralVariante(p.tipo_variante ?? 'Color')}&quot; para
-                    abrirla.
+                    Una foto con todos los {pluralVariante(p.tipo_variante || 'Color')} juntos, o una guía de
+                    talles o medidas. En la web se abre con un botón.
                   </p>
                 </div>
               </div>
+              <label className={estilos.campo}>
+                Título del muestrario (opcional)
+                <input
+                  value={p.muestrario_titulo ?? ''}
+                  placeholder={`Muestrario de ${pluralVariante(p.tipo_variante || 'Color')}`}
+                  onChange={(e) => cambiar({ muestrario_titulo: e.target.value })}
+                />
+                <span className={estilos.suave}>
+                  Por ejemplo: Guía de talles, Colores. El botón dice &quot;Ver{' '}
+                  {p.muestrario_titulo?.trim()
+                    ? p.muestrario_titulo.trim().charAt(0).toLowerCase() + p.muestrario_titulo.trim().slice(1)
+                    : `el muestrario de ${pluralVariante(p.tipo_variante || 'Color')}`}
+                  &quot;.
+                </span>
+              </label>
             </>
           )}
           <p className={estilos.suave}>
-            El stock es solo para control interno: en la web todo se muestra como disponible. Baja solo con
-            cada venta anotada. Vacío = no se controla.
+            La web muestra el stock y no deja pedir más unidades de las que hay. Baja solo con cada venta
+            anotada. Vacío = no se controla (sin límite).
           </p>
         </section>
 

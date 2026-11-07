@@ -41,10 +41,14 @@ type FilaPublica = {
   muestrario_url: string | null
   /** Puede faltar si todavía no se corrió la migración 20261029000000_descripcion_publica.sql. */
   descripcion?: string | null
-  variantes: Variante[]
+  variantes: (Omit<Variante, 'valor1' | 'valor2'> & { valor1?: string | null; valor2?: string | null })[]
   disponibilidad: Disponibilidad
   /** Stock de un producto sin variantes. Puede faltar si no se corrió 20261107000000_stock_publico.sql. */
   stock?: number | null
+  /** Pueden faltar si todavía no se corrió la migración 20261108000000_opciones_y_fotos.sql. */
+  tipo_variante2?: string | null
+  fotos_opcion?: Record<string, string> | null
+  muestrario_titulo?: string | null
 }
 
 async function desdeSupabase(): Promise<Catalogo> {
@@ -66,10 +70,17 @@ async function desdeSupabase(): Promise<Catalogo> {
     subcategoria: f.subcategoria?.trim() || undefined,
     precio: f.precio,
     // El JSON trae "stock": null cuando no se controla; se deja sin valor.
-    variantes: f.variantes.map((v) =>
-      v.stock == null ? { nombre: v.nombre, disponibilidad: v.disponibilidad } : v,
-    ),
+    variantes: f.variantes.map((v) => ({
+      nombre: v.nombre,
+      disponibilidad: v.disponibilidad,
+      ...(v.stock == null ? {} : { stock: v.stock }),
+      valor1: v.valor1 || v.nombre,
+      ...(f.tipo_variante2 && v.valor2 ? { valor2: v.valor2 } : {}),
+    })),
     tipoVariante: f.tipo_variante ?? undefined,
+    tipoVariante2: f.tipo_variante2?.trim() || undefined,
+    fotosOpcion: f.fotos_opcion ?? undefined,
+    muestrarioTitulo: f.muestrario_titulo?.trim() || undefined,
     nota: f.nota ?? undefined,
     destacado: f.destacado,
     disponibilidad: f.disponibilidad,

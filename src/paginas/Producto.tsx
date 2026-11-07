@@ -1,6 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 import { useCatalogo } from '../catalogo/CatalogoContext'
+import {
+  fotoDe,
+  fotosPorValor,
+  textoBotonMuestrario,
+  valor1Disponible,
+  valor2Disponible,
+  valores1,
+  valores2,
+} from '../catalogo/opciones'
 import type { Producto as TipoProducto } from '../catalogo/tipos'
 import { Carrusel } from '../componentes/Carrusel'
 import { Descripcion } from '../componentes/Descripcion'
@@ -15,7 +24,7 @@ import { rutaProducto, textoDisponibilidad, textoQuedan, useAgregar } from '../p
 import estilos from './Producto.module.css'
 
 /** Con más variantes que esto, una lista desplegable es más cómoda que los botones. */
-const MAX_BOTONES_TONO = 24
+const MAX_BOTONES = 24
 const MAX_RELACIONADOS = 8
 
 export function Producto() {
@@ -49,7 +58,7 @@ export function Producto() {
     .filter((p) => p.categoria === producto.categoria && p.id !== producto.id)
     .slice(0, MAX_RELACIONADOS)
 
-  // La key reinicia el tono y la cantidad al pasar de un producto a otro desde el carrusel.
+  // La key reinicia la variante elegida y la cantidad al pasar de un producto a otro desde el carrusel.
   return <Ficha key={producto.id} producto={producto} relacionados={relacionados} />
 }
 
@@ -57,7 +66,12 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
   const [parametros, setParametros] = useSearchParams()
   const {
     variante,
-    setVariante,
+    valor1,
+    valor2,
+    setValor1,
+    setValor2,
+    dosOpciones,
+    faltaValor2,
     tieneVariantes,
     disponibilidad,
     sinStock,
@@ -78,6 +92,9 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
   const [viendoMuestrario, setViendoMuestrario] = useState(false)
   const [copiado, setCopiado] = useState(false)
   const tipo = producto.tipoVariante ?? 'Color'
+  const tipo2 = producto.tipoVariante2 ?? ''
+  const foto = fotoDe(producto, valor1)
+  const miniaturas = fotosPorValor(producto)
   const enlace = `${origenSitio()}${rutaProducto(producto.id)}`
 
   useEffect(() => {
@@ -90,13 +107,24 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
     return () => clearTimeout(t)
   }, [copiado])
 
-  function elegir(nombre: string) {
-    setVariante(nombre)
-    // La variante queda en la dirección, así el link compartido abre con esa variante.
+  // Las fotos de cada color se bajan de entrada, así el cambio al tocar un color es instantáneo.
+  useEffect(() => {
+    for (const { url } of fotosPorValor(producto)) new Image().src = url
+  }, [producto])
+
+  // Lo elegido queda en la dirección, así el link compartido abre con ese color (y talle).
+  // Al abrir la página no se toca: solo cuando la clienta elige algo.
+  const primeraVez = useRef(true)
+  useEffect(() => {
+    if (primeraVez.current) {
+      primeraVez.current = false
+      return
+    }
+    if (!tieneVariantes || !variante || parametros.get('opcion') === variante) return
     const nuevos = new URLSearchParams(parametros)
-    nuevos.set('opcion', nombre)
+    nuevos.set('opcion', variante)
     setParametros(nuevos, { replace: true, preventScrollReset: true })
-  }
+  }, [variante, tieneVariantes, parametros, setParametros])
 
   async function compartir() {
     const url = `${origenSitio()}${rutaProducto(producto.id, tieneVariantes ? variante : undefined)}`
@@ -117,6 +145,11 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
   }
 
   const nombreConTono = tieneVariantes && variante ? `${producto.nombre} ${variante}` : producto.nombre
+  const muestrario = producto.muestrarioUrl && (
+    <button type="button" className={estilos.verMuestrario} onClick={() => setViendoMuestrario(true)}>
+      {textoBotonMuestrario(producto, plural)}
+    </button>
+  )
   const consulta = sinStock
     ? `¡Hola Luma! Avisame cuando vuelva a entrar ${nombreConTono}. ${enlace}`
     : `¡Hola Luma! Tengo una consulta sobre ${nombreConTono}. ${enlace}`
@@ -127,20 +160,45 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
 
       <div className={estilos.ficha}>
         <div className={estilos.columnaFoto}>
-          {producto.imagenUrl ? (
+          {foto ? (
             <button
               type="button"
               className={estilos.foto}
               onClick={() => setFotoGrande(true)}
-              aria-label={`Ver la foto de ${producto.nombre} en grande`}
+              aria-label={`Ver la foto de ${nombreFoto(producto.nombre, valor1, miniaturas)} en grande`}
             >
-              <img src={producto.imagenUrl} alt={producto.nombre} width={1000} height={1000} />
+              {/* La key hace que la foto nueva aparezca con un fundido al cambiar de color. */}
+              <img
+                key={foto}
+                className={estilos.fotoImagen}
+                src={foto}
+                alt={nombreFoto(producto.nombre, valor1, miniaturas)}
+                width={1000}
+                height={1000}
+              />
               <Etiqueta disponibilidad={disponibilidad} />
             </button>
           ) : (
             <div className={estilos.foto}>
               <IconoLuma className={estilos.placeholder} titulo="" />
               <Etiqueta disponibilidad={disponibilidad} />
+            </div>
+          )}
+          {miniaturas.length >= 2 && (
+            <div className={estilos.miniaturas} role="group" aria-label={`Fotos por ${tipo.toLowerCase()}`}>
+              {miniaturas.map((m) => (
+                <button
+                  key={m.valor}
+                  type="button"
+                  className={estilos.miniatura}
+                  aria-pressed={m.valor === valor1}
+                  aria-label={`${tipo} ${m.valor}`}
+                  disabled={!valor1Disponible(producto, m.valor)}
+                  onClick={() => setValor1(m.valor)}
+                >
+                  <img src={m.url} alt="" width={120} height={120} loading="lazy" />
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -166,51 +224,26 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
           <p className={estilos.precio}>{pesos(producto.precio)}</p>
 
           {tieneVariantes && (
-            <fieldset className={estilos.tonos}>
-              <legend>
-                {tipo}
-                {variante && <span className={estilos.elegido}>: {variante}</span>}
-              </legend>
-              {producto.variantes.length > MAX_BOTONES_TONO ? (
-                <select
-                  aria-label={tipo}
-                  value={variante}
-                  onChange={(e) => elegir(e.target.value)}
-                  className={estilos.selector}
-                >
-                  {producto.variantes.map((v) => (
-                    <option key={v.nombre} value={v.nombre} disabled={v.disponibilidad === 'sin-stock'}>
-                      {v.nombre}
-                      {v.disponibilidad === 'sin-stock' ? ' (sin stock)' : ''}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <div className={estilos.botonesTono}>
-                  {producto.variantes.map((v) => (
-                    <button
-                      key={v.nombre}
-                      type="button"
-                      className={estilos.tono}
-                      aria-pressed={v.nombre === variante}
-                      disabled={v.disponibilidad === 'sin-stock'}
-                      onClick={() => elegir(v.nombre)}
-                    >
-                      {v.nombre}
-                      {v.disponibilidad === 'sin-stock' && (
-                        <span className="solo-lectores"> (sin stock)</span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </fieldset>
+            <Opcion
+              tipo={tipo}
+              valores={valores1(producto)}
+              elegido={valor1}
+              sePuede={(v) => valor1Disponible(producto, v)}
+              alElegir={setValor1}
+            />
           )}
-
-          {producto.muestrarioUrl && (
-            <button type="button" className={estilos.verMuestrario} onClick={() => setViendoMuestrario(true)}>
-              Ver el muestrario de {plural}
-            </button>
+          {!dosOpciones && muestrario}
+          {dosOpciones && (
+            <>
+              <Opcion
+                tipo={tipo2}
+                valores={valores2(producto)}
+                elegido={valor2}
+                sePuede={(v) => valor2Disponible(producto, valor1, v)}
+                alElegir={setValor2}
+              />
+              {muestrario}
+            </>
           )}
 
           <div className={estilos.comprar}>
@@ -240,15 +273,17 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
                 setUltimoAgregado(cantidad)
                 agregar(cantidad)
               }}
-              disabled={sinStock || todoEnPedido}
+              disabled={sinStock || faltaValor2 || todoEnPedido}
             >
               {sinStock
                 ? 'Sin stock'
-                : agregado
-                  ? 'Agregado ✓'
-                  : todoEnPedido
-                    ? 'Ya está todo en tu pedido'
-                    : 'Agregar al pedido'}
+                : faltaValor2
+                  ? `Elegí tu ${tipo2.toLowerCase()}`
+                  : agregado
+                    ? 'Agregado ✓'
+                    : todoEnPedido
+                      ? 'Ya está todo en tu pedido'
+                      : 'Agregar al pedido'}
             </button>
           </div>
           {!sinStock && Number.isFinite(stock) && (
@@ -312,19 +347,81 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
           alCerrar={() => setViendoMuestrario(false)}
           nombre={producto.nombre}
           tipo={plural}
+          titulo={producto.muestrarioTitulo}
           url={producto.muestrarioUrl}
-          ayuda="Cerrá y elegí el número en los botones."
+          ayuda={`Cerrá y elegí tu ${tipo.toLowerCase()} en los botones.`}
         />
       )}
-      {producto.imagenUrl && (
+      {foto && (
         <FotoGrande
           abierta={fotoGrande}
           alCerrar={() => setFotoGrande(false)}
-          url={producto.imagenUrl}
-          nombre={producto.nombre}
+          url={foto}
+          nombre={nombreFoto(producto.nombre, valor1, miniaturas)}
         />
       )}
     </div>
+  )
+}
+
+/** "Anillo fino Dorado" si la foto es la de ese color; si no, solo el nombre del producto. */
+function nombreFoto(nombre: string, valor1: string, miniaturas: { valor: string }[]): string {
+  return miniaturas.some((m) => m.valor === valor1) ? `${nombre} ${valor1}` : nombre
+}
+
+/** Una opción para elegir (color, talle, medida): botones, o una lista si son muchos valores. */
+function Opcion({
+  tipo,
+  valores,
+  elegido,
+  sePuede,
+  alElegir,
+}: {
+  tipo: string
+  valores: string[]
+  elegido: string
+  sePuede: (valor: string) => boolean
+  alElegir: (valor: string) => void
+}) {
+  return (
+    <fieldset className={estilos.tonos}>
+      <legend>
+        {tipo}
+        {elegido && <span className={estilos.elegido}>: {elegido}</span>}
+      </legend>
+      {valores.length > MAX_BOTONES ? (
+        <select
+          aria-label={tipo}
+          value={elegido}
+          onChange={(e) => alElegir(e.target.value)}
+          className={estilos.selector}
+        >
+          {!elegido && <option value="">Elegí…</option>}
+          {valores.map((v) => (
+            <option key={v} value={v} disabled={!sePuede(v)}>
+              {v}
+              {sePuede(v) ? '' : ' (sin stock)'}
+            </option>
+          ))}
+        </select>
+      ) : (
+        <div className={estilos.botonesTono}>
+          {valores.map((v) => (
+            <button
+              key={v}
+              type="button"
+              className={estilos.tono}
+              aria-pressed={v === elegido}
+              disabled={!sePuede(v)}
+              onClick={() => alElegir(v)}
+            >
+              {v}
+              {!sePuede(v) && <span className="solo-lectores"> (sin stock)</span>}
+            </button>
+          ))}
+        </div>
+      )}
+    </fieldset>
   )
 }
 

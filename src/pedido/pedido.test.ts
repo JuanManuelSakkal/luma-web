@@ -128,3 +128,35 @@ describe('stock', () => {
     expect(reducirPedido(p, { tipo: 'olvidarAjustes' }).ajustes).toBeUndefined()
   })
 })
+
+describe('color y talle', () => {
+  const anilloLuna: Producto = {
+    ...producto('anillo-luna', 'Anillo luna', 9000),
+    tipoVariante: 'Color',
+    tipoVariante2: 'Talle',
+    variantes: [
+      { nombre: 'Dorado · 14', valor1: 'Dorado', valor2: '14', disponibilidad: 'pocas', stock: 2 },
+      { nombre: 'Dorado · 16', valor1: 'Dorado', valor2: '16', disponibilidad: 'pocas', stock: 1 },
+      { nombre: 'Plateado · 16', valor1: 'Plateado', valor2: '16', disponibilidad: 'sin-stock', stock: 0 },
+    ],
+  }
+
+  it('el tope es el stock de la combinación elegida', () => {
+    let p = reducirPedido(pedidoVacio, {
+      tipo: 'agregar',
+      producto: anilloLuna,
+      variante: 'Dorado · 16',
+      cantidad: 5,
+    })
+    expect(p.items[0].cantidad).toBe(1)
+    p = reducirPedido(p, { tipo: 'agregar', producto: anilloLuna, variante: 'Dorado · 14', cantidad: 5 })
+    expect(p.items[1].cantidad).toBe(2)
+    p = reducirPedido(p, { tipo: 'agregar', producto: anilloLuna, variante: 'Plateado · 16' })
+    expect(p.items).toHaveLength(2)
+  })
+
+  it('el mensaje de WhatsApp lleva el color y el talle', () => {
+    const p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: anilloLuna, variante: 'Dorado · 14' })
+    expect(armarMensaje(p)).toContain('Anillo luna Dorado · 14')
+  })
+})

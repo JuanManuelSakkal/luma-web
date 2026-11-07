@@ -1,4 +1,5 @@
 import Papa from 'papaparse'
+import { nombreCombinacion } from './opciones'
 import type { Catalogo, Disponibilidad, Producto } from './tipos'
 
 /**
@@ -8,11 +9,14 @@ import type { Catalogo, Disponibilidad, Producto } from './tipos'
  *      Categoría,Subcategoría,Producto,Precio
  *      Aros,Argollas,"Argolla lisa (colores dorado, plateado)",$8.500
  *    Los colores, medidas o modelos van entre paréntesis en el nombre. La subcategoría es opcional.
+ *    Con dos opciones, se separan con punto y coma: "Anillo Luna (colores dorado, plateado; talles 12, 14)"
+ *    arma las 4 combinaciones.
  *
  * 2. El formato del portal de admin, una fila por variante:
  *      categoria,subcategoria,producto,variante,tipo,precio,stock,activo,destacado
  *      Aros,Argollas,Argolla lisa,Dorado,Color,8500,10,si,si
- *    Puede traer además una columna "descripcion" (alcanza con llenarla en una fila por producto).
+ *    Puede traer además una columna "descripcion" (alcanza con llenarla en una fila por producto),
+ *    y "tipo 2" + "valor 2" para productos con dos opciones (una fila por combinación).
  */
 
 export type ResultadoImportacion = {
@@ -41,16 +45,26 @@ export function aSlug(texto: string): string {
 const PALABRAS_VARIANTE: Record<string, string> = {
   colores: 'Color',
   color: 'Color',
+  talles: 'Talle',
+  talle: 'Talle',
   medidas: 'Medida',
   medida: 'Medida',
-  talles: 'Medida',
-  talle: 'Medida',
   modelos: 'Modelo',
   modelo: 'Modelo',
 }
 
-/** Tipos de variante que entiende la base (ver la migración de Luma). */
-export const TIPOS_VARIANTE = ['Color', 'Medida', 'Modelo'] as const
+/** "talles 12, 14" → { tipo: "Talle", lista: ["12", "14"] }. */
+function leerLista(texto: string): { tipo?: string; lista: string[] } {
+  const m = texto.trim().match(/^(\w+)\s+(.*)$/u)
+  const tipo = m ? PALABRAS_VARIANTE[m[1].toLowerCase()] : undefined
+  if (!m || !tipo) return { lista: [] }
+  const lista = m[2]
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean)
+    .map(capitalizar)
+  return { tipo, lista }
+}
 
 /**
  * Separa los colores, medidas o modelos que vienen entre paréntesis en el nombre.
@@ -63,26 +77,30 @@ export function separarVariantes(texto: string): {
   variantes: string[]
   tipo?: string
   nota?: string
+  /** Segunda opción: "(colores dorado, plateado; talles 12, 14)". */
+  tipo2?: string
+  variantes2?: string[]
 } {
-  const m = texto.trim().match(/^(.*?)\s*\((\w+)\s+([^)]*)\)\s*(.*)$/u)
-  const tipo = m ? PALABRAS_VARIANTE[m[2].toLowerCase()] : undefined
-  if (!m || !tipo) return { nombre: texto.trim(), variantes: [] }
+  const m = texto.trim().match(/^(.*?)\s*\(((\w+)\s+[^)]*)\)\s*(.*)$/u)
+  if (!m || !PALABRAS_VARIANTE[m[3].toLowerCase()]) return { nombre: texto.trim(), variantes: [] }
 
   const nombre = [m[1], m[4]].filter(Boolean).join(' ').trim()
-  const lista = m[3]
-    .split(',')
-    .map((v) => v.trim())
-    .filter(Boolean)
+  const [primera, segunda] = m[2].split(';')
+  const { tipo, lista } = leerLista(primera)
   if (lista.length === 1 && lista[0].toLowerCase() === 'surtidos') {
-    return { nombre, variantes: [], nota: `${capitalizar(m[2].toLowerCase())} surtidos` }
+    return { nombre, variantes: [], nota: `${capitalizar(m[3].toLowerCase())} surtidos` }
   }
-  return { nombre, variantes: lista.map(capitalizar), tipo }
+  const otra = segunda ? leerLista(segunda) : undefined
+  if (otra?.tipo && otra.lista.length) {
+    return { nombre, variantes: lista, tipo, tipo2: otra.tipo, variantes2: otra.lista }
+  }
+  return { nombre, variantes: lista, tipo }
 }
 
-/** El tipo de variante escrito en el CSV, o "Color" si no se reconoce. */
+/** El tipo de variante escrito en el CSV ("colores" → "Color"); vacío = "Color". */
 function tipoValido(texto: string | undefined): string {
-  const t = PALABRAS_VARIANTE[(texto ?? '').trim().toLowerCase()]
-  return t ?? 'Color'
+  const t = (texto ?? '').trim()
+  return PALABRAS_VARIANTE[t.toLowerCase()] ?? (t ? capitalizar(t) : 'Color')
 }
 
 function capitalizar(texto: string): string {
@@ -114,6 +132,15 @@ function disponibilidadDelProducto(p: Producto): Disponibilidad {
   return 'sin-stock'
 }
 
+export type VarianteImportada = {
+  nombre: string
+  stock: number | null
+  activo: boolean
+  /** Con dos opciones: "Dorado" y "14" (el nombre es "Dorado · 14"). */
+  valor1?: string
+  valor2?: string
+}
+
 /** Un producto tal como viene del CSV, con el stock en número (lo usa el admin). */
 export type ProductoImportado = {
   slug: string
@@ -123,13 +150,15 @@ export type ProductoImportado = {
   subcategoria?: string
   precio: number
   tipoVariante?: string
+  /** Nombre de la segunda opción ("Talle"), si el producto tiene dos. */
+  tipoVariante2?: string
   nota?: string
   /** undefined = el CSV no trae descripción para este producto: se mantiene la que había. */
   descripcion?: string
   destacado: boolean
   activo: boolean
   /** stock null = el CSV no trae stock (formato lista de precios). */
-  variantes: { nombre: string; stock: number | null; activo: boolean }[]
+  variantes: VarianteImportada[]
   /** Solo para productos sin variantes. */
   stock: number | null
   fila: number
@@ -192,14 +221,26 @@ export function leerCsv(textoCsv: string): LecturaCsv {
     const descripcion = fila.descripcion?.trim() || undefined
     const subcategoria = fila.subcategoria?.trim() || undefined
 
-    const { nombre, variantes, tipo, nota } = formatoAdmin
+    const leido = formatoAdmin
       ? {
           nombre: textoProducto,
           variantes: fila.variante?.trim() ? [fila.variante.trim()] : [],
           tipo: tipoValido(fila.tipo),
           nota: fila.nota?.trim() || undefined,
+          tipo2:
+            fila.variante?.trim() && fila['valor 2']?.trim() ? fila['tipo 2']?.trim() || 'Talle' : undefined,
+          variantes2: fila['valor 2']?.trim() ? [fila['valor 2'].trim()] : undefined,
         }
       : separarVariantes(textoProducto)
+    const { nombre, tipo, nota, tipo2 } = leido
+    // Con dos opciones, cada combinación es una variante: "Dorado · 14".
+    const combinaciones: { nombre: string; valor1?: string; valor2?: string }[] =
+      tipo2 && leido.variantes2?.length
+        ? leido.variantes.flatMap((v1) =>
+            leido.variantes2!.map((v2) => ({ nombre: nombreCombinacion(v1, v2), valor1: v1, valor2: v2 })),
+          )
+        : leido.variantes.map((v) => ({ nombre: v }))
+    const variantes = combinaciones.map((c) => c.nombre)
     const slug = aSlug(nombre)
 
     const existente = porSlug.get(slug)
@@ -219,7 +260,12 @@ export function leerCsv(textoCsv: string): LecturaCsv {
       if (existente.precio !== precio) {
         errores.push(`Fila ${nFila}: "${nombre}" tiene precios distintos según la variante.`)
       }
-      existente.variantes.push({ nombre: variantes[0], stock, activo })
+      if ((existente.tipoVariante2 ?? '') !== (tipo2 ?? '')) {
+        return errores.push(
+          `Fila ${nFila}: "${nombre}" mezcla filas con y sin "${existente.tipoVariante2 ?? tipo2}".`,
+        )
+      }
+      existente.variantes.push({ ...combinaciones[0], stock, activo })
       existente.descripcion ??= descripcion
       existente.subcategoria ??= subcategoria
       if (esSi(fila.destacado)) existente.destacado = true
@@ -236,11 +282,12 @@ export function leerCsv(textoCsv: string): LecturaCsv {
       subcategoria,
       precio,
       tipoVariante: variantes.length ? tipo : undefined,
+      tipoVariante2: variantes.length ? tipo2 : undefined,
       nota,
       descripcion,
       destacado: esSi(fila.destacado),
       activo,
-      variantes: variantes.map((v) => ({ nombre: v, stock: formatoAdmin ? stock : null, activo })),
+      variantes: combinaciones.map((c) => ({ ...c, stock: formatoAdmin ? stock : null, activo })),
       stock: variantes.length ? null : stock,
       fila: nFila,
     })
@@ -267,8 +314,10 @@ export function importarCatalogo(textoCsv: string, destacados: string[] = []): R
           nombre: v.nombre,
           disponibilidad: disponibilidadSegunStock(v.stock),
           ...(v.stock === null ? {} : { stock: v.stock }),
+          ...(v.valor1 ? { valor1: v.valor1, valor2: v.valor2 } : {}),
         })),
       tipoVariante: p.tipoVariante,
+      tipoVariante2: p.tipoVariante2,
       nota: p.nota,
       destacado: p.destacado || destacados.includes(p.slug),
       disponibilidad: disponibilidadSegunStock(p.stock),

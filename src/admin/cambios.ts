@@ -2,7 +2,8 @@ import Papa from 'papaparse'
 import { aSlug, type LecturaCsv, type ProductoImportado } from '../catalogo/importar'
 import { pesos } from '../pedido/pedido'
 import { pluralVariante } from '../pedido/useAgregar'
-import { UNICA, type Categoria, type ProductoAdmin, type TipoVariante, type VarianteAdmin } from './tipos'
+import { armarCombinaciones, valoresEje } from './opcionesAdmin'
+import { UNICA, type Categoria, type ProductoAdmin, type VarianteAdmin } from './tipos'
 
 /** Lo que va a pasar al aplicar un CSV, para mostrarlo antes de confirmar. */
 export type PlanImportacion = {
@@ -18,10 +19,39 @@ export type PlanImportacion = {
 
 const textoStock = (s: number | null) => (s === null ? 'sin controlar' : String(s))
 
-function variantesImportadas(
-  p: ProductoImportado,
-): { nombre: string; stock: number | null; activo: boolean }[] {
+function variantesImportadas(p: ProductoImportado): ProductoImportado['variantes'] {
   return p.variantes.length ? p.variantes : [{ nombre: UNICA, stock: p.stock, activo: p.activo }]
+}
+
+/**
+ * La lista de precios suele traer solo los colores de un producto que en el admin tiene color y
+ * talle ("Anillo Luna (colores dorado, plateado)"). Ahí se conservan los talles que había: cada
+ * color del CSV se combina con ellos.
+ */
+function conTallesDeLaBase(imp: ProductoImportado, actual: ProductoAdmin | undefined): ProductoImportado {
+  if (!actual?.tipo_variante2 || imp.tipoVariante2 || !imp.variantes.length) return imp
+  const talles = valoresEje(actual, 2)
+  const combinadas = armarCombinaciones(
+    actual.variantes,
+    imp.variantes.map((v) => v.nombre),
+    talles,
+  )
+  return {
+    ...imp,
+    tipoVariante2: actual.tipo_variante2,
+    variantes: combinadas.map((c) => {
+      const delCsv = imp.variantes.find((v) => v.nombre === c.valor1)!
+      // Lo visible de cada combinación lo manda la base (puede no haber plateado talle 16).
+      const previa = actual.variantes.find((v) => v.nombre === c.nombre)
+      return {
+        nombre: c.nombre,
+        valor1: c.valor1 ?? undefined,
+        valor2: c.valor2 ?? undefined,
+        stock: delCsv.stock,
+        activo: delCsv.activo && (previa?.activo ?? true),
+      }
+    }),
+  }
 }
 
 /** Combina un producto del CSV con lo que ya hay en la base. */
@@ -30,12 +60,15 @@ function combinar(
   actual: ProductoAdmin | undefined,
   conStock: boolean,
 ): ProductoAdmin & { categoria: string } {
+  if (!conStock) imp = conTallesDeLaBase(imp, actual)
   const importadas = variantesImportadas(imp)
   const variantes: VarianteAdmin[] = importadas.map((v, orden) => {
     const previa = actual?.variantes.find((a) => a.nombre === v.nombre)
     return {
       id: previa?.id,
       nombre: v.nombre,
+      valor1: v.nombre === UNICA ? null : (v.valor1 ?? v.nombre),
+      valor2: v.valor2 ?? null,
       // Si el CSV no trae stock, se mantiene el que había.
       stock: v.stock ?? previa?.stock ?? null,
       activo: v.activo,
@@ -58,13 +91,24 @@ function combinar(
     // Una celda vacía (o un CSV viejo sin la columna) no borra la descripción que había.
     descripcion: imp.descripcion ?? actual?.descripcion ?? null,
     nota: imp.nota ?? (conStock ? null : (actual?.nota ?? null)),
-    tipo_variante: imp.variantes.length ? ((imp.tipoVariante as TipoVariante | undefined) ?? 'Color') : null,
+    // Un nombre de opción cambiado a mano en el admin (Medida en vez de Color) no lo pisa la lista de precios.
+    tipo_variante: imp.variantes.length
+      ? conStock
+        ? (imp.tipoVariante ?? 'Color')
+        : actual?.tipo_variante && imp.tipoVariante === 'Color'
+          ? actual.tipo_variante
+          : (imp.tipoVariante ?? 'Color')
+      : null,
+    tipo_variante2: imp.variantes.length ? (imp.tipoVariante2 ?? null) : null,
     precio: imp.precio,
     // La lista de precios no trae "destacado" ni "activo": se respeta lo que había.
     destacado: conStock ? imp.destacado : (actual?.destacado ?? false),
     activo: conStock ? imp.activo : true,
     imagen_url: actual?.imagen_url ?? null,
     muestrario_url: actual?.muestrario_url ?? null,
+    // Las fotos por color y el título del muestrario se cargan en el admin: el CSV no los toca.
+    fotos_opcion: actual?.fotos_opcion ?? {},
+    muestrario_titulo: actual?.muestrario_titulo ?? null,
     variantes,
   }
 }
@@ -148,12 +192,15 @@ export function exportarCsv(productos: ProductoAdmin[], categorias: Categoria[])
     const categoria = categorias.find((c) => c.id === p.categoria_id)?.nombre ?? ''
     // La variante "Único" oculta de un producto que después pasó a tener variantes no se exporta.
     const variantes = p.variantes.filter((v) => !(v.nombre === UNICA && !v.activo && p.variantes.length > 1))
+    const dos = !!p.tipo_variante2
     return variantes.map((v, i) => ({
       categoria,
       subcategoria: p.subcategoria ?? '',
       producto: p.nombre,
-      variante: v.nombre === UNICA ? '' : v.nombre,
+      variante: v.nombre === UNICA ? '' : dos ? (v.valor1 ?? v.nombre) : v.nombre,
       tipo: v.nombre === UNICA ? '' : (p.tipo_variante ?? 'Color'),
+      'tipo 2': dos && v.valor2 ? p.tipo_variante2 : '',
+      'valor 2': dos ? (v.valor2 ?? '') : '',
       precio: p.precio,
       stock: v.stock ?? '',
       activo: p.activo && v.activo ? 'si' : 'no',
@@ -164,5 +211,8 @@ export function exportarCsv(productos: ProductoAdmin[], categorias: Categoria[])
     }))
   })
   // El BOM hace que Excel abra bien los acentos.
-  return '﻿' + Papa.unparse(filas, { newline: '\r\n' })
+  // Las columnas de la segunda opción solo van si algún producto la usa, así el CSV de siempre no cambia.
+  const conDos = productos.some((p) => p.tipo_variante2)
+  const columnas = Object.keys(filas[0] ?? {}).filter((c) => conDos || (c !== 'tipo 2' && c !== 'valor 2'))
+  return '﻿' + Papa.unparse(filas, { newline: '\r\n', columns: columnas })
 }

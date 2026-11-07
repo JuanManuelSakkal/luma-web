@@ -215,6 +215,7 @@ function FormularioVenta({
               alCerrar={() => setViendoTonos(false)}
               nombre={producto.nombre}
               tipo={tipo}
+              titulo={producto.muestrario_titulo ?? undefined}
               url={producto.muestrario_url}
               ayuda="Cerrá y tocá el número que vendiste."
             />

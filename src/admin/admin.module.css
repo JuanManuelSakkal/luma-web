@@ -647,3 +647,72 @@
 .filaTono p {
   margin: 0;
 }
+
+/* Foto de cada tono o color en la tabla de opciones. */
+.fotoValor {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.fotoValor .miniatura {
+  width: 48px;
+  font-size: 0.6rem;
+}
+
+/* Grilla color × talle: en el celular se desliza de costado. */
+.grillaScroll {
+  overflow-x: auto;
+  margin-bottom: 0.5rem;
+}
+
+.grilla th input:not([type='checkbox']) {
+  width: 4.5rem;
+}
+
+.grilla td input[aria-label^='Nombre'] {
+  width: 7.5rem;
+}
+
+.grilla input.stockChico {
+  width: 4.2rem;
+  min-height: 38px;
+  padding: 0.3em;
+}
+
+.grilla th .enlace {
+  display: block;
+  font-size: 0.8rem;
+}
+
+.grilla th,
+.grilla td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.stockChico {
+  text-align: center;
+}
+
+.checkChico {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+.celdaApagada {
+  background: var(--crema);
+  opacity: 0.6;
+}
+
+.accionesFotos {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}

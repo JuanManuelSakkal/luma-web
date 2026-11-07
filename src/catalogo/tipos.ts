@@ -6,6 +6,10 @@ export type Variante = {
   disponibilidad: Disponibilidad
   /** Unidades que hay. Sin valor = no se controla el stock (no hay límite). */
   stock?: number
+  /** Valor de la primera opción ("Dorado"). Si falta, es el nombre. */
+  valor1?: string
+  /** Valor de la segunda opción ("14"), solo en productos con dos opciones. */
+  valor2?: string
 }
 
 export type Producto = {
@@ -19,8 +23,12 @@ export type Producto = {
   precio: number
   /** Vacío si el producto no tiene colores, medidas ni modelos. */
   variantes: Variante[]
-  /** Etiqueta del selector de variantes: "Color", "Medida" o "Modelo". */
+  /** Nombre de la primera opción: "Color", "Medida", "Modelo". */
   tipoVariante?: string
+  /** Nombre de la segunda opción ("Talle"). Vacío = una sola opción. */
+  tipoVariante2?: string
+  /** Foto de cada valor de la primera opción: { Dorado: "https://…" }. */
+  fotosOpcion?: Record<string, string>
   /** Aclaración corta, por ejemplo "Colores surtidos". */
   nota?: string
   destacado: boolean
@@ -30,6 +38,8 @@ export type Producto = {
   imagenUrl?: string
   /** Foto con todas las variantes juntas, para elegir. */
   muestrarioUrl?: string
+  /** Título del muestrario ("Guía de talles"). Vacío = "Muestrario de colores". */
+  muestrarioTitulo?: string
   /** Texto largo para la página del producto (ver catalogo/descripcion.ts). */
   descripcion?: string
 }

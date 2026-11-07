@@ -128,6 +128,29 @@ Entrar a `https://<tu dominio>/admin` (o `http://localhost:5173/admin`) con el m
 
 La primera vez se puede subir `src/datos/catalogo.csv` desde **Subir/bajar CSV** para probar, y después cargar los productos reales.
 
+### Fotos por color y dos opciones (color y talle)
+
+Necesita la migración `20261108000000_opciones_y_fotos.sql`. Hay que correrla en el Supabase de Luma
+**antes** de publicar esta versión de la web: la web y el admin leen esas columnas.
+
+- **Foto por color:** en la tabla de variantes de cada producto, la columna **Foto**. Al elegir ese color en
+  la web, la foto cambia; los colores sin foto muestran la foto general. Con 2 o más colores con foto,
+  aparecen miniaturas debajo de la foto. **Subir varias fotos** asigna cada archivo al color que aparece en
+  su nombre (`dorado.jpg` → Dorado).
+- **Título del muestrario:** el muestrario puede ser una foto con todos los colores juntos o una guía de
+  talles. El título cambia el botón ("Ver guía de talles").
+- **Dos opciones:** tildar "Tiene una segunda opción" y ponerle nombre (Talle). Se cargan las dos listas y
+  queda una grilla: una fila por color (con su foto) y una columna por talle, con el stock de cada
+  combinación y "Hay" para las que no se ofrecen. Cada combinación es una variante más en la base
+  ("Dorado · 14"), así que las ventas y el stock funcionan igual. El precio es uno solo por producto.
+  En la web, la clienta elige el color (la foto cambia) y después el talle, que nunca viene elegido. Los
+  talles sin stock en ese color aparecen tachados, y no se puede pedir más de lo que hay de esa combinación.
+  En el catálogo, la tarjeta muestra "Elegir talle" y lleva a la página del producto.
+- **CSV:** el CSV del admin suma las columnas `tipo 2` y `valor 2` (solo si algún producto tiene dos
+  opciones): una fila por combinación, con el color en `variante`/`tipo` y el talle en `valor 2`/`tipo 2`.
+  Las fotos nunca vienen ni se borran por CSV.
+- Los nombres de las opciones son texto libre (Color, Talle, Medida, Modelo…).
+
 ### Usuario para anotar ventas (vendedora)
 
 Entra en `<tu dominio>/venta` y solo ve la pantalla de anotar ventas, con lo anotado hoy. Puede deshacer
@@ -147,7 +170,7 @@ alguna venta sin anotar.
 1. Subir el proyecto a un repositorio privado de GitHub.
 2. En Cloudflare: **Workers & Pages > Create > Import a repository**, elegir el repositorio.
    Build command `npm run build`, deploy command `npx wrangler deploy`.
-3. En **Settings > Build > Variables and secrets** (las de *build*, no las de runtime) cargar
+3. En **Settings > Build > Variables and secrets** (las de _build_, no las de runtime) cargar
    `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` y `NODE_VERSION=22`. Vite las mete en la web al compilar,
    así que si se cambian hay que volver a publicar.
 4. Cuando haya dominio: agregarlo en **Settings > Domains & Routes**, ponerlo en `contacto.dominio` de
