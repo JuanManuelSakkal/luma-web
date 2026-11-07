@@ -7,6 +7,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react'
+import { useCatalogo } from '../catalogo/CatalogoContext'
 import { leerPedidoGuardado, reducirPedido, type Accion, type Pedido } from './pedido'
 
 const CLAVE = 'luma.pedido.v1'
@@ -31,6 +32,14 @@ function leerGuardado(): Pedido {
 export function PedidoProvider({ children }: { children: ReactNode }) {
   const [pedido, despachar] = useReducer(reducirPedido, undefined, leerGuardado)
   const [abierto, setAbierto] = useState(false)
+
+  const catalogo = useCatalogo()
+
+  // El pedido guardado puede ser de hace días: con el catálogo al día, se ajusta a lo que hay.
+  useEffect(() => {
+    if (catalogo.estado === 'listo')
+      despachar({ tipo: 'ajustarStock', productos: catalogo.catalogo.productos })
+  }, [catalogo])
 
   // Se guarda en el celular para que no se pierda si cierra la página.
   useEffect(() => {

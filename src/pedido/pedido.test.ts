@@ -71,3 +71,60 @@ describe('leerPedidoGuardado', () => {
     expect(leerPedidoGuardado('{"items":5}')).toEqual(pedidoVacio)
   })
 })
+
+describe('stock', () => {
+  const conStock = (stock: number): Producto => ({ ...aros, stock })
+  const conColores: Producto = {
+    ...anillo,
+    tipoVariante: 'Color',
+    variantes: [
+      { nombre: 'Dorado', disponibilidad: 'pocas', stock: 2 },
+      { nombre: 'Plateado', disponibilidad: 'sin-stock', stock: 0 },
+    ],
+  }
+
+  it('no deja agregar más unidades de las que hay, sumando lo que ya estaba', () => {
+    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: conStock(3), cantidad: 2 })
+    p = reducirPedido(p, { tipo: 'agregar', producto: conStock(3), cantidad: 5 })
+    expect(p.items[0]).toMatchObject({ cantidad: 3, stock: 3 })
+    p = reducirPedido(p, { tipo: 'cambiarCantidad', clave: aros.id, cantidad: 10 })
+    expect(p.items[0].cantidad).toBe(3)
+  })
+
+  it('cuenta el stock de cada variante y no agrega una agotada', () => {
+    let p = reducirPedido(pedidoVacio, {
+      tipo: 'agregar',
+      producto: conColores,
+      variante: 'Dorado',
+      cantidad: 4,
+    })
+    p = reducirPedido(p, { tipo: 'agregar', producto: conColores, variante: 'Plateado' })
+    expect(p.items.map((i) => [i.variante, i.cantidad])).toEqual([['Dorado', 2]])
+  })
+
+  it('sin stock cargado no hay límite', () => {
+    const p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: aros, cantidad: 20 })
+    expect(p.items[0].cantidad).toBe(20)
+    expect(p.items[0].stock).toBeUndefined()
+  })
+
+  it('ajusta un pedido guardado al stock de hoy y avisa', () => {
+    let p = reducirPedido(pedidoVacio, { tipo: 'agregar', producto: conStock(5), cantidad: 4 })
+    p = reducirPedido(p, { tipo: 'agregar', producto: conColores, variante: 'Dorado' })
+    const hoy = [
+      conStock(2),
+      {
+        ...conColores,
+        variantes: [{ ...conColores.variantes[0], stock: 0, disponibilidad: 'sin-stock' as const }],
+      },
+    ]
+    p = reducirPedido(p, { tipo: 'ajustarStock', productos: hoy })
+    expect(p.items).toEqual([expect.objectContaining({ productoId: aros.id, cantidad: 2, stock: 2 })])
+    expect(p.ajustes).toEqual([
+      'De Aros argolla quedan 2 unidades.',
+      'Anillo regulable Dorado se agotó y lo sacamos de tu pedido.',
+    ])
+    expect(reducirPedido(p, { tipo: 'ajustarStock', productos: hoy })).toBe(p)
+    expect(reducirPedido(p, { tipo: 'olvidarAjustes' }).ajustes).toBeUndefined()
+  })
+})

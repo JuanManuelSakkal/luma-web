@@ -381,3 +381,9 @@ div.foto {
   background: var(--aqua);
   transform: translateY(-1px);
 }
+
+.stock {
+  margin: 0.6rem 0 0;
+  font-size: 0.9rem;
+  color: var(--violeta);
+}

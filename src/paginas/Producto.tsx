@@ -11,7 +11,7 @@ import { TarjetaProducto } from '../componentes/TarjetaProducto'
 import { diasParaCambios, enlaces, origenSitio } from '../config'
 import { pesos } from '../pedido/pedido'
 import { usePedido } from '../pedido/PedidoContext'
-import { rutaProducto, textoDisponibilidad, useAgregar } from '../pedido/useAgregar'
+import { rutaProducto, textoDisponibilidad, textoQuedan, useAgregar } from '../pedido/useAgregar'
 import estilos from './Producto.module.css'
 
 /** Con más variantes que esto, una lista desplegable es más cómoda que los botones. */
@@ -55,10 +55,25 @@ export function Producto() {
 
 function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionados: TipoProducto[] }) {
   const [parametros, setParametros] = useSearchParams()
-  const { variante, setVariante, tieneVariantes, disponibilidad, sinStock, plural, agregado, agregar } =
-    useAgregar(producto, parametros.get('opcion') ?? undefined)
+  const {
+    variante,
+    setVariante,
+    tieneVariantes,
+    disponibilidad,
+    sinStock,
+    stock,
+    enPedido,
+    restantes,
+    todoEnPedido,
+    plural,
+    agregado,
+    agregar,
+  } = useAgregar(producto, parametros.get('opcion') ?? undefined)
   const { setAbierto } = usePedido()
-  const [cantidad, setCantidad] = useState(1)
+  const [cantidadElegida, setCantidad] = useState(1)
+  // Nunca más de lo que se puede sumar al pedido (si cambia la variante o ya se agregó, se ajusta sola).
+  const cantidad = Math.max(1, Math.min(cantidadElegida, restantes, 99))
+  const [ultimoAgregado, setUltimoAgregado] = useState(0)
   const [fotoGrande, setFotoGrande] = useState(false)
   const [viendoMuestrario, setViendoMuestrario] = useState(false)
   const [copiado, setCopiado] = useState(false)
@@ -203,8 +218,8 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
               <button
                 type="button"
                 aria-label="Uno menos"
-                onClick={() => setCantidad((c) => Math.max(1, c - 1))}
-                disabled={cantidad <= 1 || sinStock}
+                onClick={() => setCantidad(Math.max(1, cantidad - 1))}
+                disabled={cantidad <= 1 || sinStock || todoEnPedido}
               >
                 −
               </button>
@@ -212,8 +227,8 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
               <button
                 type="button"
                 aria-label="Uno más"
-                onClick={() => setCantidad((c) => Math.min(99, c + 1))}
-                disabled={sinStock}
+                onClick={() => setCantidad(cantidad + 1)}
+                disabled={sinStock || todoEnPedido || cantidad >= Math.min(restantes, 99)}
               >
                 +
               </button>
@@ -221,16 +236,31 @@ function Ficha({ producto, relacionados }: { producto: TipoProducto; relacionado
             <button
               type="button"
               className={`boton boton-principal ${estilos.agregar}`}
-              onClick={() => agregar(cantidad)}
-              disabled={sinStock}
+              onClick={() => {
+                setUltimoAgregado(cantidad)
+                agregar(cantidad)
+              }}
+              disabled={sinStock || todoEnPedido}
             >
-              {sinStock ? 'Sin stock' : agregado ? 'Agregado ✓' : 'Agregar al pedido'}
+              {sinStock
+                ? 'Sin stock'
+                : agregado
+                  ? 'Agregado ✓'
+                  : todoEnPedido
+                    ? 'Ya está todo en tu pedido'
+                    : 'Agregar al pedido'}
             </button>
           </div>
+          {!sinStock && Number.isFinite(stock) && (
+            <p className={estilos.stock}>
+              {textoQuedan(stock)}
+              {enPedido > 0 && ` · ${enPedido} ya ${enPedido === 1 ? 'está' : 'están'} en tu pedido`}
+            </p>
+          )}
           <p className={estilos.avisoAgregado} aria-live="polite">
             {agregado && (
               <>
-                {cantidad > 1 ? `${cantidad} × ` : ''}
+                {ultimoAgregado > 1 ? `${ultimoAgregado} × ` : ''}
                 {nombreConTono} en tu pedido.{' '}
                 <button type="button" className={estilos.enlace} onClick={() => setAbierto(true)}>
                   Ver mi pedido

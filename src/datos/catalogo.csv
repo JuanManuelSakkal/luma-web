@@ -1,32 +1,32 @@
 ﻿categoria,subcategoria,producto,variante,tipo,precio,stock,activo,destacado,nota,descripcion
-Aros,Argollas,Aros argolla dorada,Chica,Medida,8500,,si,si,,"Argollas lisas, livianas y cómodas para usar todos los días.
+Aros,Argollas,Aros argolla dorada,Chica,Medida,8500,4,si,si,,"Argollas lisas, livianas y cómodas para usar todos los días.
 
 - Medidas: chica 12 mm, mediana 20 mm
 - Cierre a presión"
-Aros,Argollas,Aros argolla dorada,Mediana,Medida,8500,,si,si,,
-Aros,Abridores,Aros abridores perla,,,6900,,si,si,,"Abridores con perla para el primer agujero o para combinar.
+Aros,Argollas,Aros argolla dorada,Mediana,Medida,8500,6,si,si,,
+Aros,Abridores,Aros abridores perla,,,6900,3,si,si,,"Abridores con perla para el primer agujero o para combinar.
 
 - Perla de 6 mm
 - Ideales para usar de día y de noche"
-Aros,Colgantes,Aros colgantes gota,Dorado,Color,11900,,si,,,Aros colgantes con forma de gota que suman brillo a cualquier look.
-Aros,Colgantes,Aros colgantes gota,Plateado,Color,11900,,si,,,
-Aros,Cuff,Cuff trenzado,,,7500,,si,,,"Cuff para el borde de la oreja, sin necesidad de agujero."
-Collares,Collares con dijes,Collar corazón,Dorado,Color,14500,,si,si,,"Cadena fina con dije de corazón.
+Aros,Colgantes,Aros colgantes gota,Dorado,Color,11900,5,si,,,Aros colgantes con forma de gota que suman brillo a cualquier look.
+Aros,Colgantes,Aros colgantes gota,Plateado,Color,11900,2,si,,,
+Aros,Cuff,Cuff trenzado,,,7500,8,si,,,"Cuff para el borde de la oreja, sin necesidad de agujero."
+Collares,Collares con dijes,Collar corazón,Dorado,Color,14500,3,si,si,,"Cadena fina con dije de corazón.
 
 - Largo: 45 cm con extensor de 5 cm"
-Collares,Collares con dijes,Collar corazón,Plateado,Color,14500,,si,si,,
-Collares,Cadenas,Cadena veneciana,,,12900,,si,,,"Cadena fina, perfecta sola o para sumar tus dijes."
-Collares,Collar corbatero,Collar corbatero perlas,,,16900,,si,,,Collar corbatero con perlas y caída al centro.
-Pulseras,Pulsera charm,Pulsera charm estrellas,,,13500,,si,si,,"Pulsera con dijes de estrellas y cierre mosquetón."
-Pulseras,Esclavas,Esclava lisa,Dorado,Color,9900,,si,si,,Esclava rígida y fina para combinar con otras pulseras.
-Pulseras,Esclavas,Esclava lisa,Plateado,Color,9900,,si,si,,
-Pulseras,Pulsera simple,Pulsera hilo con dije,Corazón,Modelo,5900,,si,,,Pulsera de hilo regulable con un dije a elección.
-Pulseras,Pulsera simple,Pulsera hilo con dije,Luna,Modelo,5900,,si,,,
-Pulseras,Pulsera simple,Pulsera hilo con dije,Estrella,Modelo,5900,,si,,,
-Anillos,Anillos finos,Anillo fino cubic,14,Medida,8900,,si,si,,"Anillo fino con una piedra cubic al centro.
+Collares,Collares con dijes,Collar corazón,Plateado,Color,14500,1,si,si,,
+Collares,Cadenas,Cadena veneciana,,,12900,6,si,,,"Cadena fina, perfecta sola o para sumar tus dijes."
+Collares,Collar corbatero,Collar corbatero perlas,,,16900,2,si,,,Collar corbatero con perlas y caída al centro.
+Pulseras,Pulsera charm,Pulsera charm estrellas,,,13500,4,si,si,,Pulsera con dijes de estrellas y cierre mosquetón.
+Pulseras,Esclavas,Esclava lisa,Dorado,Color,9900,5,si,si,,Esclava rígida y fina para combinar con otras pulseras.
+Pulseras,Esclavas,Esclava lisa,Plateado,Color,9900,0,si,si,,
+Pulseras,Pulsera simple,Pulsera hilo con dije,Corazón,Modelo,5900,10,si,,,Pulsera de hilo regulable con un dije a elección.
+Pulseras,Pulsera simple,Pulsera hilo con dije,Luna,Modelo,5900,7,si,,,
+Pulseras,Pulsera simple,Pulsera hilo con dije,Estrella,Modelo,5900,3,si,,,
+Anillos,Anillos finos,Anillo fino cubic,14,Medida,8900,2,si,si,,"Anillo fino con una piedra cubic al centro.
 
 - Elegí tu medida. Si no sabés cuál es, escribinos y te ayudamos."
-Anillos,Anillos finos,Anillo fino cubic,16,Medida,8900,,si,si,,
-Anillos,Anillos finos,Anillo fino cubic,18,Medida,8900,,si,si,,
-Anillos,Anillos grandes,Anillo sello ovalado,,,12500,,si,,,Anillo sello de presencia para usar solo o combinado.
-Anillos,Anillos regulables,Anillo regulable mariposa,,,7900,,si,,,Se ajusta a cualquier dedo.
+Anillos,Anillos finos,Anillo fino cubic,16,Medida,8900,3,si,si,,
+Anillos,Anillos finos,Anillo fino cubic,18,Medida,8900,1,si,si,,
+Anillos,Anillos grandes,Anillo sello ovalado,,,12500,4,si,,,Anillo sello de presencia para usar solo o combinado.
+Anillos,Anillos regulables,Anillo regulable mariposa,,,7900,6,si,,,Se ajusta a cualquier dedo.

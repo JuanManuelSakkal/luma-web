@@ -10,10 +10,20 @@ import estilos from './TarjetaProducto.module.css'
 
 export function TarjetaProducto({ producto }: { producto: Producto }) {
   const idSelector = useId()
-  const { variante, setVariante, tieneVariantes, disponibilidad, sinStock, plural, agregado, agregar } =
-    useAgregar(producto)
+  const {
+    variante,
+    setVariante,
+    tieneVariantes,
+    disponibilidad,
+    sinStock,
+    stock,
+    todoEnPedido,
+    plural,
+    agregado,
+    agregar,
+  } = useAgregar(producto)
   const [viendoMuestrario, setViendoMuestrario] = useState(false)
-  // La foto y el nombre llevan a la página del producto, con el tono que estaba elegido.
+  // La foto y el nombre llevan a la página del producto, con la variante que estaba elegida.
   const ruta = rutaProducto(producto.id, tieneVariantes ? variante : undefined)
 
   return (
@@ -26,7 +36,11 @@ export function TarjetaProducto({ producto }: { producto: Producto }) {
         )}
         {disponibilidad !== 'disponible' && (
           <span className={`${estilos.etiqueta} ${estilos[disponibilidad]}`}>
-            {textoDisponibilidad[disponibilidad]}
+            {disponibilidad === 'pocas' && Number.isFinite(stock)
+              ? stock === 1
+                ? 'Última unidad'
+                : `Últimas ${stock}`
+              : textoDisponibilidad[disponibilidad]}
           </span>
         )}
       </Link>
@@ -63,9 +77,15 @@ export function TarjetaProducto({ producto }: { producto: Producto }) {
           type="button"
           className={`boton boton-principal ${estilos.agregar}`}
           onClick={() => agregar()}
-          disabled={sinStock}
+          disabled={sinStock || todoEnPedido}
         >
-          {sinStock ? 'Sin stock' : agregado ? 'Agregado ✓' : 'Agregar'}
+          {sinStock
+            ? 'Sin stock'
+            : agregado
+              ? 'Agregado ✓'
+              : todoEnPedido
+                ? 'Ya está en tu pedido'
+                : 'Agregar'}
         </button>
         {producto.muestrarioUrl && (
           <Muestrario

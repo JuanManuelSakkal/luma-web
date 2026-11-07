@@ -43,6 +43,8 @@ type FilaPublica = {
   descripcion?: string | null
   variantes: Variante[]
   disponibilidad: Disponibilidad
+  /** Stock de un producto sin variantes. Puede faltar si no se corrió 20261107000000_stock_publico.sql. */
+  stock?: number | null
 }
 
 async function desdeSupabase(): Promise<Catalogo> {
@@ -63,11 +65,15 @@ async function desdeSupabase(): Promise<Catalogo> {
     categoria: f.categoria,
     subcategoria: f.subcategoria?.trim() || undefined,
     precio: f.precio,
-    variantes: f.variantes,
+    // El JSON trae "stock": null cuando no se controla; se deja sin valor.
+    variantes: f.variantes.map((v) =>
+      v.stock == null ? { nombre: v.nombre, disponibilidad: v.disponibilidad } : v,
+    ),
     tipoVariante: f.tipo_variante ?? undefined,
     nota: f.nota ?? undefined,
     destacado: f.destacado,
     disponibilidad: f.disponibilidad,
+    ...(f.stock == null ? {} : { stock: f.stock }),
     imagenUrl: f.imagen_url ?? undefined,
     muestrarioUrl: f.muestrario_url ?? undefined,
     descripcion: f.descripcion?.trim() || undefined,

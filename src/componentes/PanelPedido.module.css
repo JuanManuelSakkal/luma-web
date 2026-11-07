@@ -212,3 +212,40 @@
   font-size: 0.85rem;
   color: var(--texto-suave);
 }
+
+.cantidad button:disabled {
+  color: var(--borde);
+  cursor: not-allowed;
+}
+
+.maximo {
+  font-size: 0.8rem;
+  color: var(--texto-suave);
+}
+
+/* Aviso cuando el pedido guardado se ajustó porque cambió el stock. */
+.ajustes {
+  margin-bottom: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--aqua-fondo);
+  border-left: 3px solid var(--violeta);
+  font-size: 0.92rem;
+}
+
+.ajustes p {
+  margin: 0 0 0.3rem;
+}
+
+.ajustes ul {
+  margin: 0 0 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.ajustes button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--violeta);
+  text-decoration: underline;
+  cursor: pointer;
+}

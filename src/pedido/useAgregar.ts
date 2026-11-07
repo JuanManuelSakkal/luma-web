@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { Disponibilidad, Producto } from '../catalogo/tipos'
+import { stockDisponible, type Disponibilidad, type Producto } from '../catalogo/tipos'
+import { claveItem } from './pedido'
 import { usePedido } from './PedidoContext'
 
 export const textoDisponibilidad: Record<Disponibilidad, string> = {
@@ -13,7 +14,7 @@ export const textoDisponibilidad: Record<Disponibilidad, string> = {
  * así las dos se comportan igual.
  */
 export function useAgregar(producto: Producto, varianteInicial?: string) {
-  const { despachar } = usePedido()
+  const { pedido, despachar } = usePedido()
   const elegible = (nombre?: string) =>
     producto.variantes.find((v) => v.nombre === nombre && v.disponibilidad !== 'sin-stock')?.nombre
   const primeraDisponible = producto.variantes.find((v) => v.disponibilidad !== 'sin-stock')
@@ -31,8 +32,23 @@ export function useAgregar(producto: Producto, varianteInicial?: string) {
     ? (producto.variantes.find((v) => v.nombre === variante)?.disponibilidad ?? 'sin-stock')
     : producto.disponibilidad
 
+  const varianteElegida = tieneVariantes ? variante : undefined
+  const stock = stockDisponible(producto, varianteElegida)
+  const enPedido =
+    pedido.items.find(
+      (i) => claveItem(i) === claveItem({ productoId: producto.id, variante: varianteElegida }),
+    )?.cantidad ?? 0
+  /** Cuántas unidades más se pueden sumar al pedido. Infinity si no se controla el stock. */
+  const restantes = Math.max(0, stock - enPedido)
+
   function agregar(cantidad = 1) {
-    despachar({ tipo: 'agregar', producto, variante: tieneVariantes ? variante : undefined, cantidad })
+    if (restantes <= 0) return
+    despachar({
+      tipo: 'agregar',
+      producto,
+      variante: varianteElegida,
+      cantidad: Math.min(cantidad, restantes),
+    })
     setAgregado(true)
   }
 
@@ -41,7 +57,13 @@ export function useAgregar(producto: Producto, varianteInicial?: string) {
     setVariante,
     tieneVariantes,
     disponibilidad,
-    sinStock: disponibilidad === 'sin-stock',
+    sinStock: disponibilidad === 'sin-stock' || stock <= 0,
+    /** Unidades que hay de lo elegido (Infinity si no se controla). */
+    stock,
+    enPedido,
+    restantes,
+    /** Ya están en el pedido todas las unidades que hay. */
+    todoEnPedido: stock > 0 && restantes <= 0,
     /** "colores", "medidas" o "modelos". */
     plural: pluralVariante(producto.tipoVariante),
     agregado,
@@ -58,4 +80,9 @@ export function pluralVariante(tipo = 'Opción'): string {
 /** Dirección de la página de un producto, con la variante elegida si hay. */
 export function rutaProducto(id: string, variante?: string): string {
   return `/catalogo/${id}${variante ? `?opcion=${encodeURIComponent(variante)}` : ''}`
+}
+
+/** "Queda 1 unidad", "Quedan 3 unidades". */
+export function textoQuedan(stock: number): string {
+  return stock === 1 ? 'Queda 1 unidad' : `Quedan ${stock} unidades`
 }

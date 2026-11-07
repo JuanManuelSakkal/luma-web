@@ -249,7 +249,7 @@ export function leerCsv(textoCsv: string): LecturaCsv {
   return { productos: [...porSlug.values()], categorias, conStock: formatoAdmin, errores }
 }
 
-/** El catálogo público a partir del CSV: solo productos activos, con disponibilidad en vez de stock. */
+/** El catálogo público a partir del CSV: solo productos activos, con su disponibilidad y su stock. */
 export function importarCatalogo(textoCsv: string, destacados: string[] = []): ResultadoImportacion {
   const { productos, categorias, errores } = leerCsv(textoCsv)
   const activos = productos.filter((p) => p.activo)
@@ -266,11 +266,13 @@ export function importarCatalogo(textoCsv: string, destacados: string[] = []): R
         .map((v) => ({
           nombre: v.nombre,
           disponibilidad: disponibilidadSegunStock(v.stock),
+          ...(v.stock === null ? {} : { stock: v.stock }),
         })),
       tipoVariante: p.tipoVariante,
       nota: p.nota,
       destacado: p.destacado || destacados.includes(p.slug),
       disponibilidad: disponibilidadSegunStock(p.stock),
+      ...(p.stock === null ? {} : { stock: p.stock }),
     }
     return { ...producto, disponibilidad: disponibilidadDelProducto(producto) }
   })

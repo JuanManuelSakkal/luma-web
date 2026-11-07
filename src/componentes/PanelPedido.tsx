@@ -42,6 +42,20 @@ export function PanelPedido() {
           </button>
         </header>
 
+        {pedido.ajustes && pedido.ajustes.length > 0 && (
+          <div className={estilos.ajustes} role="status">
+            <p>Actualizamos tu pedido con el stock de hoy:</p>
+            <ul>
+              {pedido.ajustes.map((a) => (
+                <li key={a}>{a}</li>
+              ))}
+            </ul>
+            <button type="button" onClick={() => despachar({ tipo: 'olvidarAjustes' })}>
+              Entendido
+            </button>
+          </div>
+        )}
+
         {vacio ? (
           <div className={estilos.vacio}>
             <p>Todavía no agregaste productos.</p>
@@ -67,6 +81,9 @@ export function PanelPedido() {
                         </Link>
                       </p>
                       <p className={estilos.subtotal}>{pesos(item.precio * item.cantidad)}</p>
+                      {item.stock !== undefined && item.cantidad >= item.stock && (
+                        <p className={estilos.maximo}>No hay más unidades</p>
+                      )}
                     </div>
                     <div className={estilos.cantidad} role="group" aria-label={`Cantidad de ${item.nombre}`}>
                       <button
@@ -82,6 +99,12 @@ export function PanelPedido() {
                       <button
                         type="button"
                         aria-label="Uno más"
+                        disabled={item.stock !== undefined && item.cantidad >= item.stock}
+                        title={
+                          item.stock !== undefined && item.cantidad >= item.stock
+                            ? 'No hay más unidades'
+                            : undefined
+                        }
                         onClick={() =>
                           despachar({ tipo: 'cambiarCantidad', clave, cantidad: item.cantidad + 1 })
                         }

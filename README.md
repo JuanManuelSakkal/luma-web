@@ -84,8 +84,8 @@ La web funciona sin Supabase, leyendo el CSV. Para conectarla:
 
 Qué protege la base:
 
-- El público solo lee la vista `catalogo_publico`: productos activos, siempre como disponibles. El stock es
-  solo control interno y no se ve en la web.
+- El público solo lee la vista `catalogo_publico`: productos activos, con cuántas unidades hay de cada
+  variante (para limitar el pedido). Precios de costo y ventas no se ven.
 - Solo los usuarios de la tabla `admins` pueden cambiar productos. Los de `vendedoras` solo anotan ventas.
 - Las ventas se escriben solo con las funciones `registrar_venta` y `anular_venta`, que descuentan y devuelven
   el stock en la misma operación.
@@ -93,6 +93,19 @@ Qué protege la base:
 - Los costos y márgenes **no** van en esta base.
 
 Si Supabase no responde, la web usa el CSV como respaldo.
+
+## Stock en la web
+
+Luma maneja stock firme: la web sabe cuántas unidades hay de cada producto (o de cada color, medida o
+modelo) y no deja agregar al pedido más de esas. Con 3 o menos muestra "Últimas unidades" y en la página del
+producto "Quedan N unidades". Si alguien tenía un pedido guardado y mientras tanto bajó el stock, al volver
+a entrar se ajusta solo y se le avisa.
+
+- El stock baja cuando se **anota la venta** en el admin (`/admin/venta`). Por eso, apenas se confirma un
+  pedido por WhatsApp, conviene anotarlo: hasta que no se anota, la web sigue ofreciendo esas unidades.
+- Stock vacío en el admin = no se controla: la web no pone límite. Para Luma conviene cargarlo siempre.
+- Requiere la migración `20261107000000_stock_publico.sql` (ver Supabase, paso 2). Sin ella la web
+  funciona igual, pero sin límite.
 
 ## Portal de admin (`/admin`)
 

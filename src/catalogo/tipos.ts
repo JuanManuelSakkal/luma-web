@@ -4,6 +4,8 @@ export type Variante = {
   /** Color, medida o modelo tal como se muestra: "Dorado", "16", "Corazón". */
   nombre: string
   disponibilidad: Disponibilidad
+  /** Unidades que hay. Sin valor = no se controla el stock (no hay límite). */
+  stock?: number
 }
 
 export type Producto = {
@@ -23,6 +25,8 @@ export type Producto = {
   nota?: string
   destacado: boolean
   disponibilidad: Disponibilidad
+  /** Solo para productos sin variantes: unidades que hay. Sin valor = no se controla. */
+  stock?: number
   imagenUrl?: string
   /** Foto con todas las variantes juntas, para elegir. */
   muestrarioUrl?: string
@@ -34,4 +38,18 @@ export type Catalogo = {
   productos: Producto[]
   /** Categorías en el orden en que se muestran. */
   categorias: string[]
+}
+
+/**
+ * Cuántas unidades hay de un producto (o de una de sus variantes).
+ * Infinity si no se controla el stock; 0 si está sin stock o la variante ya no existe.
+ */
+export function stockDisponible(producto: Producto, variante?: string): number {
+  if (producto.variantes.length === 0) {
+    if (producto.disponibilidad === 'sin-stock') return 0
+    return producto.stock ?? Infinity
+  }
+  const v = producto.variantes.find((x) => x.nombre === variante)
+  if (!v || v.disponibilidad === 'sin-stock') return 0
+  return v.stock ?? Infinity
 }

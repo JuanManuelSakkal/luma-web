@@ -96,12 +96,12 @@ describe('importarCatalogo con el formato del admin', () => {
   ].join('\n')
   const { catalogo, errores } = importarCatalogo(csv)
 
-  it('agrupa las variantes y calcula la disponibilidad sin mostrar el stock', () => {
+  it('agrupa las variantes y calcula la disponibilidad y el stock', () => {
     expect(errores).toEqual([])
     const argolla = catalogo.productos.find((p) => p.id === 'argolla-lisa')!
     expect(argolla.variantes).toEqual([
-      { nombre: 'Dorado', disponibilidad: 'disponible' },
-      { nombre: 'Plateado', disponibilidad: 'sin-stock' },
+      { nombre: 'Dorado', disponibilidad: 'disponible', stock: 10 },
+      { nombre: 'Plateado', disponibilidad: 'sin-stock', stock: 0 },
     ])
     expect(argolla.destacado).toBe(true)
     expect(argolla.tipoVariante).toBe('Color')
