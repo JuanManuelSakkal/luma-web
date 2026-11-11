@@ -7,8 +7,8 @@ export const contacto = {
   instagram: 'lumaaccesorios_vos',
   email: 'lumaaccesorios.ba@gmail.com',
   /** Formato internacional para wa.me: 54 + 9 + característica + número, sin 0 ni 15. */
-  whatsapp: '5491134095159',
-  whatsappVisible: '11 3409-5159',
+  whatsapp: '5491125357726',
+  whatsappVisible: '11 2535-7726',
 }
 
 /** Datos para pagar por transferencia. Se muestran en la web y en el pedido. */

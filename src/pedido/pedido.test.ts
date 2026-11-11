@@ -61,7 +61,7 @@ describe('armarMensaje', () => {
   })
 
   it('el link de WhatsApp lleva el número y el texto codificado', () => {
-    expect(enlaces.whatsapp('Hola #3')).toBe('https://wa.me/5491134095159?text=Hola%20%233')
+    expect(enlaces.whatsapp('Hola #3')).toBe('https://wa.me/5491125357726?text=Hola%20%233')
   })
 })
 
