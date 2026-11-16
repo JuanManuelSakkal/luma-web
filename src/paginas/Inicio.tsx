@@ -17,6 +17,8 @@ const categorias = [
   { nombre: 'Collares', detalle: ['Cadenas', 'Con dijes', 'Corbateros'] },
   { nombre: 'Pulseras', detalle: ['Esclavas', 'Simples', 'Charm'] },
   { nombre: 'Anillos', detalle: ['Finos', 'Grandes', 'Regulables'] },
+  { nombre: 'Prendedores', detalle: ['Broches', 'Pins'] },
+  { nombre: 'Llaveros', detalle: ['Para tus llaves', 'Para tu cartera'] },
 ]
 
 const pasos = [

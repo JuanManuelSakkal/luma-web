@@ -101,7 +101,8 @@
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  /* Seis categorías: tres por fila (dos en el celular), así no queda una fila a medias. */
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
